@@ -26,7 +26,10 @@ This hands-on lab begins with an existing imported process. You are **not** crea
 ---  
 
 ## ✅ Initial Test
-Before we begin editing the process, release and deploy the _gb-cui-claim-classStart_ project in **Studio Admin**. Once deployed, test the process and get a feel for what it does.
+1. Import the _gb-cui-claim-classStart_ project into Modeler.
+2. Reassign the User Task to yourself _ex (TrainB12)_.
+
+Release and deploy the project in **Studio Admin**. Once deployed, test the process and get a feel for what it does.
 
 ### 🔍 Testing Checklist
 Verify that:
