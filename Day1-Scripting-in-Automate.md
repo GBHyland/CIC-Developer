@@ -26,7 +26,7 @@ This hands-on lab begins with an existing imported process. You are **not** crea
 ---  
 
 ## ✅ Initial Test
-Before we begin editing the process, release and deploy the process in **Studio Admin**. Once deployed, test the process and get a feel for what it does.
+Before we begin editing the process, release and deploy the _gb-cui-claim-classStart_ project in **Studio Admin**. Once deployed, test the process and get a feel for what it does.
 
 ### 🔍 Testing Checklist
 Verify that:
