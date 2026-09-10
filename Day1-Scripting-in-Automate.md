@@ -27,7 +27,7 @@ This hands-on lab begins with an existing imported process. You are **not** crea
 
 ## ✅ Initial Test
 1. Import the _gb-cui-claim-classStart_ project into Modeler.
-2. Reassign the User Task to yourself _ex (TrainB12)_.
+2. Reassign the **"creat-claim"** and **"display-JSON"** User Tasks to yourself _ex.(TrainB12)_.
 
 Release and deploy the project in **Studio Admin**. Once deployed, test the process and get a feel for what it does.
 
