@@ -299,7 +299,7 @@ Create the following process variables:
 
 | Variable | Type | Purpose |
 |---|---|---|
-| `var_attachedFile` | `contentArray` | Stores the files uploaded by the user |
+| `var_attachedFile` | `Array<content>` | Stores the files uploaded by the user |
 | `doc_fileToMove` | `content` | Stores the individual file currently being processed |
 | `var_processFiles` | `Boolean` | Determines whether another file should be processed |
 | `var_currentIndex` | `Integer` | Tracks the current file within the uploaded file collection |
