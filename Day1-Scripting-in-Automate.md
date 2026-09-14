@@ -61,18 +61,8 @@ In this step we'll add the `create-claim-num` Script Task and edit process varia
 
 5. Connect the Start Event to `create-claim-num`.
 6. Select the **+** sign in the properties panel to create a new script.
-7. Name the script:
+7. Name the script: `create-claim-num`. 
 
-   `create-claim-num`
-
-Your process should begin with a flow similar to:
-
-```text
-Start
-  |
-  v
-create-claim-num
-```
 
 ### Configure Variable Mapping
 
