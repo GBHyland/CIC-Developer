@@ -74,16 +74,6 @@ Start
 create-claim-num
 ```
 
-### Configure the Script
-
-1. Select the `create-claim-num` Script Task.
-2. Open the script configuration.
-3. Paste the following code into the script editor and finish the logic:
-```
-// assign the Unix timestamp as the claim number for the var_claimNumber process variable
-
-```  
-
 ### Configure Variable Mapping
 
 1. Select **Edit Script Variables**.
@@ -93,7 +83,19 @@ create-claim-num
    - **Type:** ```string```
 4. Save.
 
-Configure the Script Task to use **variable mapping** for the required process variables.
+Configure the Script Task to use **variable mapping** for the required process variables.  
+
+
+### Configure the Script
+
+1. Select the `create-claim-num` Script Task.
+2. Open the script configuration.
+3. Paste the following code into the script editor and finish the logic:
+```
+// assign the Unix timestamp as the claim number for the var_claimNumber process variable
+
+```
+
 
 > [!TIP]
 > Verify that the variables required by the script are available to the Script Task before continuing.
