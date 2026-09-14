@@ -312,11 +312,11 @@ Create the following process variables:
 ### Step 2: Modify the `create-claim` Form
 
 1. Open the existing `create-claim` form.
-2. Locate the current **File Upload** component.
-3. Change the component from:
+2. Locate the current **File Upload** form component.
+3. Change the Label from:
 
 ```text
-Single File Upload
+Attach a file Please
 ```
 
 to:
