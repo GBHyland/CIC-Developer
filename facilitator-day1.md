@@ -21,8 +21,8 @@ Complete code for the **update-claim-num** script task:
 // set a local variable called claimNum as a reference to our var_claimNumber process variable
 const claimNum = variables.var_claimNumber;
 
-// make process variable updatedClaimNum the value of the claimNum
-variables.updatedClaimNum = claimNum;
+// make process variable var_updatedClaimNum the value of the claimNum
+variables.var_updatedClaimNum = claimNum;
 
 // if webhook prepend "W", form prepend "F"
 const inbound = variables.var_inboundRequest;
@@ -34,7 +34,7 @@ if (hasJsonData(inbound)) {
 }
 
 // add the id to the claim number
-variables.updatedClaimNum = id + claimNum;
+variables.var_updatedClaimNum = id + claimNum;
 
 
 
