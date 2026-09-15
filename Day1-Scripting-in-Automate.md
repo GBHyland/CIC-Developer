@@ -568,8 +568,6 @@ The overall behavior is:
 9. When no additional files need to be processed, the gateway follows its Default Flow.
 10. File processing ends.
 
----  
-
 ---
 
 ## 🧪 LAB 7: Mapping JSON Values to Process Variables
