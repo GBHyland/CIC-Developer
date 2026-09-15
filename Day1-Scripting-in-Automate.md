@@ -430,7 +430,7 @@ function hasJsonData(jsonObject) {
 > - If no files exist, the process will skip file processing.
 
 **Create the File Check Script Task**. 
-1. Create a new **Script Task** and **Script Object** both named: ```check-for-files```.
+1. Create a new **Script Task** and **Script Object** both named: ```check-for-files```. Place this script task **after** the _create-claim-doc_ generate document task and **before** the exclusive gateway. 
 2. Add the following script template and write the Javascript to perform these actions. The script will determine whether files exist and prepare the variables used by the upcoming gateway.
 ```
 // create a local variable called attachedFiles that gets a reference to the var_attachedFile process variable
