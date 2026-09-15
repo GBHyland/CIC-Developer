@@ -1,0 +1,13 @@
+{
+  "description" : "",
+  "type" : "object",
+  "$id" : "ms",
+  "properties" : {
+    "firstName" : {
+      "type" : "string"
+    }
+  },
+  "key" : "myschema-zjbc2",
+  "name" : "myschema",
+  "required" : [ ]
+}

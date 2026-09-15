@@ -1,0 +1,42 @@
+{
+  "formRepresentation" : {
+    "id" : "form-1cf384d1-516f-4ce9-8142-06458f3aa818",
+    "name" : "folder-inop-notify",
+    "key" : "folder-inop-notify-a43ws",
+    "description" : "",
+    "version" : 0,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "138aff9f-bafc-4f38-83d0-8e84919fbd17",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "errorMessage",
+                "name" : "Display text",
+                "type" : "readonly-text",
+                "readOnly" : false,
+                "value" : "",
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

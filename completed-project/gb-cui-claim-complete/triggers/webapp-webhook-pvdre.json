@@ -1,0 +1,27 @@
+{
+  "id" : "trigger-fafae175-3859-4ea1-8b0f-e1e9246a1133",
+  "name" : "webapp-webhook",
+  "key" : "webapp-webhook-pvdre",
+  "description" : "",
+  "event" : {
+    "source" : "connector.webapp-webhook-wxn61.INCOMING_WEBHOOK",
+    "inputs" : {
+      "path" : "claim",
+      "status" : 200,
+      "body" : {
+        "status" : "success"
+      }
+    }
+  },
+  "action" : {
+    "source" : "command-consumer",
+    "payload" : {
+      "name" : "claim-process",
+      "payloadType" : "StartProcessPayload",
+      "processDefinitionKey" : "Process_1774551868806",
+      "variables" : {
+        "var_inboundRequest" : "${body}"
+      }
+    }
+  }
+}

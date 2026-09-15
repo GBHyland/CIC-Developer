@@ -1,0 +1,42 @@
+{
+  "formRepresentation" : {
+    "id" : "form-e679ef70-2d49-4fda-9cad-830a00ab579f",
+    "name" : "val-inbound",
+    "key" : "val-inbound-5ea39",
+    "description" : "",
+    "version" : 0,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "ff914abb-0510-43ed-8b6b-0fd46a229d0e",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "inbound",
+                "name" : "Display text",
+                "type" : "readonly-text",
+                "readOnly" : false,
+                "value" : "Display text as part of the form",
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id" : "6e0e277b-8a09-4450-a09b-d464c99f4799",
+  "name" : "claims-portal",
+  "description" : "",
+  "adf-template" : "content",
+  "key" : "claims-portal-gh2fh",
+  "primary" : true,
+  "customUI" : "claims-portal-s69fi",
+  "uiType" : "custom"
+}
