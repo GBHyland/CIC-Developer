@@ -27,7 +27,7 @@ This hands-on lab begins with an existing imported process. You are **not** crea
 
 ## ✅ Initial Test
 1. Import the _gb-cui-claim-classStart_ project into Modeler.
-2. Reassign the **"create-claim"** and **"display-JSON"** User Tasks to yourself _ex.(TrainB12)_.
+2. Reassign the **"display-JSON"** User Tasks to yourself _ex.(TrainB12)_.
 
 Release and deploy the project in **Studio Admin**. Once deployed, test the process and get a feel for what it does.
 
@@ -208,9 +208,12 @@ Verify that:
 
 ---  
 
-**Created Folder Name Enhancement**
-1. Select the Create Folder task.
+**Applying Unique Name to Generated Folder and Generate Document Task**
+1. Select the **Create Folder** task.
 2. Change the value of the **Name** attribute to: ```claim-[your initials]-${var_updatedClaimNum}```.
+3. Select the **Generate Document** task.
+4. Change the **Output File Name** input mapping value to: ```claim-[your initials]-${var_updatedClaimNum}```.  
+
 > [!TIP]
 > **Expressions and Interpolation**
 > Using a variable with dollar-bracket syntax, such as `${var_updatedClaimNum}`, is called an **expression**. An expression allows you to reference the current value of a process variable.
