@@ -180,9 +180,6 @@ if (attachedFiles.length > 0)
     variables.var_processFiles = false;
 }
 
-// or use this shorter version
-variables.var_processFiles = attachedFiles.length > 0;
-
 // set process variable var_currentIndex tp 0 
 // (to start the looping index at the 1st position in the array)
 variables.var_currentIndex = 0;
