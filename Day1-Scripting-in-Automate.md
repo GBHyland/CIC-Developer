@@ -524,21 +524,8 @@ The resulting loop should resemble:
 
 Each time the process returns to the gateway, `var_processFiles` is evaluated again.
 
----
+2. Ensure the _exclusive gateway_ has an **End Event** with the flow sequence line set to be the **default flow**.
 
-**Configure the End Path**
-1. Add an **End Event** to the second output path of the Exclusive Gateway, **if not already there**.
-2. Configure this sequence flow as the: **Default Flow**
-
-The gateway should behave as follows:
-
-| Gateway Path | Configuration | Result |
-|---|---|---|
-| Move Content | `var_processFiles == true` | Process the current uploaded file |
-| End | Default | No additional files need to be processed |
-
-> [!IMPORTANT]
-> The End path should be configured as the **Default Flow**, rather than using a second condition such as `var_processFiles == false`.
 
 ---
 
