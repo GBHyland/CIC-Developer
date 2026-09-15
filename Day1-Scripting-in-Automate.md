@@ -323,6 +323,7 @@ to:
 ```text
 Multiple File Upload
 ```
+4. With the attach files component selected, use the **Advanced** tab to toggle **on** the **Allow multiple file attachments** checkbox.
 
 The form will now allow the user to select and upload multiple files.
 
