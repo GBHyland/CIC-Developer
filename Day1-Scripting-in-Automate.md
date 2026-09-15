@@ -46,7 +46,7 @@ Verify that:
 > [!NOTE]
 > **Lab Objective:** Configure the process logic used to establish and update the claim number.
 
-In this lab, you will add the Script Tasks required to establish the claim number used throughout the process.
+In this lab, you will add the Script Tasks required to establish a unique claim number used throughout the process.
 
 
 ### Step 1: Process and Script Task Variables 
