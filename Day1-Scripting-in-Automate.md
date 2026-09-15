@@ -475,7 +475,7 @@ Verify that:
 After a file has been moved, the process needs to determine whether another uploaded file remains.
 
 **Add the Looping Script**
-1. Create a new **Script Task** and **Script element**, both titled ```loop-logic```.
+1. Create a new **Script Task** and **Script element**, both titled ```loop-logic```. Place this script inside the logic loop **after** the _move-file_ task.
 2. Set the script task mapping to: ```Map all inputs/outputs variables```.
 3. Paste the following script template and write in the necessary Javascript to complete the tasks. This script will update the variables required to determine whether another uploaded file needs to be processed.
 ```
