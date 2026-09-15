@@ -173,6 +173,14 @@ let attachedFiles = variables.var_attachedFile;
 // set process variable var_processFiles to True or False
 // false if process var attachedFiles has no files 
 // (hint: use.length to ensure there's > 0 objects in array)
+if (attachedFiles.length > 0)
+{
+    variables.var_processFiles = true;
+} else {
+    variables.var_processFiles = false;
+}
+
+// or use this shorter version
 variables.var_processFiles = attachedFiles.length > 0;
 
 // set process variable var_currentIndex tp 0 
