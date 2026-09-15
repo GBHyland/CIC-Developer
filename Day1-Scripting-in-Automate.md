@@ -20,8 +20,8 @@ This hands-on lab begins with an existing imported process. You are **not** crea
 
 **Download the starting project and example files before beginning this lab:**
 
-📦 [Download cic-dev-scripting.zip](starting-point/cic-dev-scripting.zip)(Right click to open in new tab)  
-📦 [Download cic-dev-upload-examples.zip](claim-upload-docs/cic-dev-upload-examples.zip)(Right click to open in new tab)  
+📦 **Project Application:** [Download cic-dev-scripting.zip](starting-point/cic-dev-scripting.zip)(Right click to open in new tab)  
+📦 **Supporting Files:** [Download cic-dev-upload-examples.zip](claim-upload-docs/cic-dev-upload-examples.zip)(Right click to open in new tab)  
 
 ---  
 
