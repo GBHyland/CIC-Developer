@@ -441,7 +441,7 @@ function hasJsonData(jsonObject) {
 // (hint: use.length to ensure there's > 0 objects in array)
 
 
-// set process variable var_currentIndex tp 0 
+// set process variable var_currentIndex to 0 
 // (to start the looping index at the 1st position in the array)
 
 
