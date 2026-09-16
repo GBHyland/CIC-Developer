@@ -1,944 +1,1970 @@
-# LAB: Build an Angular Component from Scratch
+# Hands-On Lab: Build a Claims Dashboard with Angular and HxP Content Repository
 
 ## Overview
 
-In the previous exercises, you created and customized pages within an Automate Custom UI.
+In this lab, you will build an Angular-based **Insurance Claims Dashboard** that retrieves live claim information from the HxP Content Repository.
 
-Now we're going to take a closer look at one of the most important building blocks of an Angular application: the **Component**.
+Rather than displaying hard-coded values, the dashboard will query the repository at runtime to discover claim folders and the documents stored within each claim.
 
-Rather than starting with a completed component, we'll build one from scratch and progressively add functionality to it.
+By the end of the lab, your dashboard will:
 
-By the end of this lab, you will have worked with:
+- Connect to the HxP Content Repository using an existing Angular service.
+- Query claim folders using HXQL.
+- Determine the total number of claims.
+- Retrieve the documents associated with each claim.
+- Store repository results in TypeScript objects.
+- Dynamically generate claim cards using Angular control flow.
+- Display claim and document information in a responsive dashboard.
+- Handle loading, empty, and error states.
 
-- Angular Components
-- HTML Templates
-- Component Properties
-- Data Binding
-- Event Binding
-- Component Methods
-- Component Lifecycle
-- Component Imports
-- Angular Routing
-
----
-
-## Understanding What We're Building
-
-An Angular component combines application logic with a user interface.
-
-At a high level:
-
-```text
-TypeScript Component
-        ↓
- Application Logic
-        ↕
-   HTML Template
-        ↓
-   User Interface
-```
-
-The **TypeScript component** controls what the component knows and what it can do.
-
-The **HTML template** controls what the user sees.
-
-We'll start with a very simple component and build upon it throughout this lab.
+> **Estimated Time:** 2.5–3 hours
 
 ---
 
-# Part 1: Create the Component
+# What You Will Build
 
-## Step 1: Create the Component Folder
-
-In your Custom UI source code, navigate to:
+The completed dashboard will represent repository content similar to the following:
 
 ```text
-libs/
+/uidev_claims
+│
+├── CLM-10001
+│   ├── ClaimForm.pdf
+│   ├── PoliceReport.pdf
+│   └── vehicle-damage.jpg
+│
+├── CLM-10002
+│   ├── ClaimForm.pdf
+│   └── accident.jpg
+│
+└── CLM-10003
+    └── Estimate.pdf
 ```
 
-Create a new folder named:
+Each folder directly beneath `uidev_claims` represents a **claim**.
+
+The files inside each claim folder represent the **supporting documents for that claim**.
+
+The Angular application will transform this repository structure into a dashboard similar to:
 
 ```text
-dashboard
+Insurance Claims Dashboard
+
+TOTAL CLAIMS
+     7
+
+------------------------------------------------
+
+CLM-10001                     3 Documents
+
+Supporting Documents
+
+    ClaimForm.pdf
+    PoliceReport.pdf
+    vehicle-damage.jpg
+
+------------------------------------------------
+
+CLM-10002                     2 Documents
+
+Supporting Documents
+
+    ClaimForm.pdf
+    accident.jpg
 ```
 
-Your directory should now contain:
+The number of claims and documents will be determined dynamically from the repository.
+
+---
+
+# Learning Objectives
+
+After completing this lab, you will be able to:
+
+1. **Integrate** an Angular component with an HxP Content Repository API using Angular dependency injection.
+
+2. **Construct and execute** HXQL queries to retrieve repository folders and content.
+
+3. **Transform and present** repository data dynamically using TypeScript and Angular templates.
+
+---
+
+# Prerequisites
+
+Before beginning this lab, verify that:
+
+- Your Custom UI project runs successfully.
+- The `/dashboard` route displays your dashboard component.
+- A `uidev_claims` folder exists in the HxP Content Repository.
+- `uidev_claims` contains one or more claim folders.
+- Claim folders contain test documents such as PDFs or images.
+
+Your project should already contain:
 
 ```text
 libs/
 └── dashboard/
+    ├── customDashComponent.ts
+    ├── customDashComponent.html
+    └── customDashComponent.scss
 ```
 
 ---
 
-## Step 2: Create the TypeScript Component
+# Part 1 — Understand the Repository Data Model
 
-Inside the new `dashboard` folder, create a file named:
+Before writing code, consider how the repository content maps to the application.
+
+A repository structure such as:
 
 ```text
-customDashComponent.ts
+/uidev_claims
+    /CLM-10001
+        ClaimForm.pdf
+        DamagePhoto.jpg
 ```
 
-Add the following code template and complete the code:
+can be represented in TypeScript as:
+
+```text
+Claim
+ ├── id
+ ├── name
+ ├── path
+ ├── created
+ ├── modified
+ └── documents[]
+        ├── id
+        ├── name
+        ├── path
+        ├── primaryType
+        ├── created
+        └── modified
+```
+
+The dashboard will therefore perform two levels of repository queries:
+
+```text
+Query /uidev_claims
+        │
+        ▼
+Find Claim Folders
+        │
+        ▼
+For Each Claim
+        │
+        ▼
+Query Claim Folder
+        │
+        ▼
+Find Documents
+        │
+        ▼
+Build Dashboard
+```
+
+This separates **retrieving the data** from **displaying the data**.
+
+---
+
+# Part 2 — Create the Claim Data Models
+
+Open:
+
+```text
+libs/dashboard/customDashComponent.ts
+```
+
+Begin with the Angular imports:
 
 ```typescript
-// import the component library
-
-
-// add the component decorator that identifies this file as a component
-
-
-// export the class in order to define the component's data and behavior
-
+import { Component, inject, OnInit } from '@angular/core';
 ```
 
-Save the file.
+Next, import the HxP Content Repository API types:
 
-### What Did We Just Create?
+```typescript
+import {
+    Query,
+    QueryApi,
+    QueryResult
+} from '@hylandsoftware/hxcs-js-client';
+```
 
-Let's look at some of the important parts of this component.
+Finally, import the Angular injection token used to access the configured Query API:
 
-The following decorator tells Angular that this class represents a component:
+```typescript
+import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
+```
+
+Your imports should now be:
+
+```typescript
+import { Component, inject, OnInit } from '@angular/core';
+import {
+    Query,
+    QueryApi,
+    QueryResult
+} from '@hylandsoftware/hxcs-js-client';
+import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
+```
+
+---
+
+## Create a Claim Document Interface
+
+Below the imports, create an interface describing the document information needed by the dashboard:
+
+```typescript
+interface ClaimDocument {
+    id: string;
+    name: string;
+    path: string;
+    primaryType: string;
+    created: string;
+    modified: string;
+}
+```
+
+This interface defines the structure the application will use for each claim document.
+
+---
+
+## Create a Claim Interface
+
+Next, create another interface representing a claim:
+
+```typescript
+interface Claim {
+    id: string;
+    name: string;
+    path: string;
+    created: string;
+    modified: string;
+    documents: ClaimDocument[];
+}
+```
+
+Notice that a claim contains:
+
+```typescript
+documents: ClaimDocument[];
+```
+
+This allows each claim to contain its own collection of supporting documents.
+
+### Checkpoint
+
+At this point you have defined the data structure the dashboard will eventually display.
+
+No repository query has been made yet.
+
+---
+
+# Part 3 — Configure the Dashboard Component
+
+Add the component definition:
 
 ```typescript
 @Component({
-```
-
-The `selector` provides an identifier for the component:
-
-```typescript
-selector: 'hxp-dashboard'
-```
-
-The `templateUrl` tells Angular where the HTML template for this component can be found:
-
-```typescript
-templateUrl: './customDashComponent.html'
-```
-
-Finally, the class itself is where we can define the component's **data and behavior**:
-
-```typescript
-export class customDashComponent {
+    selector: 'hxp-dashboard',
+    templateUrl: './customDashComponent.html',
+    styleUrls: ['./customDashComponent.scss']
+})
+export class customDashComponent implements OnInit {
 
 }
 ```
 
-As we progress through this lab, most of our functionality will be added inside this class.
+The component uses three separate files:
+
+```text
+customDashComponent.ts
+        │
+        ├── Application logic
+        │
+customDashComponent.html
+        │
+        ├── User interface
+        │
+customDashComponent.scss
+        │
+        └── Presentation and styling
+```
+
+This separation makes the component easier to maintain as it grows.
 
 ---
 
-# Part 2: Create the Component's User Interface
+# Part 4 — Inject the Repository Query API
 
-## Step 3: Create the HTML Template
+The Custom UI application already provides a configured `QueryApi`.
 
-Our component references an HTML file that doesn't exist yet.
+Inside the component class, add:
 
-Inside the same `dashboard` folder, create:
+```typescript
+private queryApi = inject<QueryApi>(QUERY_API_TOKEN);
+```
+
+This uses Angular dependency injection to request the Query API from the application.
+
+> **Why use dependency injection?**
+>
+> The application is responsible for configuring the repository API connection. The component requests that existing configured service rather than manually constructing its own API client.
+
+Now add the initial component properties:
+
+```typescript
+dashboardTitle = 'Insurance Claims Dashboard';
+
+claims: Claim[] = [];
+
+isLoading = true;
+loadError = '';
+```
+
+The `claims` array will eventually contain all claim information retrieved from the repository.
+
+---
+
+# Part 5 — Load Data When the Component Starts
+
+Implement Angular's `OnInit` lifecycle hook:
+
+```typescript
+ngOnInit(): void {
+    this.loadClaims();
+}
+```
+
+When Angular initializes the dashboard component, it will call:
+
+```typescript
+loadClaims()
+```
+
+We will create that method next.
+
+---
+
+# Part 6 — Query the Claim Folders
+
+Create the following method inside the component:
+
+```typescript
+async loadClaims(): Promise<void> {
+
+    this.isLoading = true;
+    this.loadError = '';
+
+}
+```
+
+The method is asynchronous because repository requests do not return immediately.
+
+---
+
+## Create the HXQL Query
+
+Inside the `try` block, create a `Query` object:
+
+```typescript
+const claimQuery: Query = {
+    query: `
+        SELECT *
+        FROM SysFolder
+        WHERE sys_parentPath = '/uidev_claims'
+    `,
+    limit: 1000,
+    offset: 0
+};
+```
+
+The HXQL statement:
+
+```sql
+SELECT *
+FROM SysFolder
+WHERE sys_parentPath = '/uidev_claims'
+```
+
+requests folders whose immediate parent path is:
 
 ```text
-customDashComponent.html
+/uidev_claims
+```
+
+Because each folder directly inside `uidev_claims` represents a claim, the results become our collection of claims.
+
+---
+
+## Execute the Query
+
+Add:
+
+```typescript
+const response =
+    await this.queryApi.getDocumentsByQuery(claimQuery);
+```
+
+Then retrieve the query result:
+
+```typescript
+const result: QueryResult = response.data;
+```
+
+And obtain the returned repository documents:
+
+```typescript
+const claimFolders = result.documents ?? [];
+```
+
+The `?? []` provides an empty array when no documents are returned.
+
+For testing, add:
+
+```typescript
+console.log(
+    `Found ${claimFolders.length} claim folders.`,
+    claimFolders
+);
+```
+
+---
+
+## Initial Test
+
+For now, temporarily add:
+
+```typescript
+this.claims = claimFolders.map((folder: any) => ({
+    id: folder.sys_id,
+    name: folder.sys_name,
+    path: folder.sys_path,
+    created: folder.sys_created,
+    modified: folder.sys_modified,
+    documents: []
+}));
+```
+
+Complete the method with basic error handling:
+
+```typescript
+async loadClaims(): Promise<void> {
+
+    this.isLoading = true;
+    this.loadError = '';
+
+    try {
+
+        const claimQuery: Query = {
+            query: `
+                SELECT *
+                FROM SysFolder
+                WHERE sys_parentPath = '/uidev_claims'
+            `,
+            limit: 1000,
+            offset: 0
+        };
+
+        const response =
+            await this.queryApi.getDocumentsByQuery(claimQuery);
+
+        const result: QueryResult = response.data;
+
+        const claimFolders = result.documents ?? [];
+
+        console.log(
+            `Found ${claimFolders.length} claim folders.`,
+            claimFolders
+        );
+
+        this.claims = claimFolders.map((folder: any) => ({
+            id: folder.sys_id,
+            name: folder.sys_name,
+            path: folder.sys_path,
+            created: folder.sys_created,
+            modified: folder.sys_modified,
+            documents: []
+        }));
+
+    } catch (error) {
+
+        console.error(
+            'Unable to load claims:',
+            error
+        );
+
+        this.loadError =
+            'Unable to retrieve claims from the Content Repository.';
+
+    } finally {
+
+        this.isLoading = false;
+
+    }
+}
+```
+
+### Checkpoint
+
+Save the file and reload the dashboard.
+
+Open the browser developer tools and verify that the console reports the number of claim folders found.
+
+For example:
+
+```text
+Found 7 claim folders.
+```
+
+The exact number depends on the contents of your repository.
+
+---
+
+# Part 7 — Display the Total Number of Claims
+
+Now connect the repository data to the HTML.
+
+Open:
+
+```text
+libs/dashboard/customDashComponent.html
 ```
 
 Add:
 
 ```html
-<h1>Claims Dashboard</h1>
+<div class="dashboard">
 
-<p>My dashboard component is working!</p>
+    <h1>{{ dashboardTitle }}</h1>
+
+    <h2>Total Claims</h2>
+
+    <div>
+        {{ claims.length }}
+    </div>
+
+</div>
 ```
 
-Save the file.
+Notice that no claim count is hard-coded.
 
-Your component now consists of two files:
+Angular evaluates:
+
+```html
+{{ claims.length }}
+```
+
+using the array populated by the repository query.
+
+If another claim folder is created, the number changes the next time the dashboard retrieves repository data.
+
+### Checkpoint
+
+Reload the dashboard.
+
+Verify that **Total Claims** matches the number of folders stored directly inside:
 
 ```text
-dashboard/
-├── customDashComponent.ts
-└── customDashComponent.html
+/uidev_claims
 ```
-
-Think of these files as having two different responsibilities:
-
-### TypeScript
-
-```text
-What does my component know?
-
-What can my component do?
-```
-
-### HTML
-
-```text
-What does my component show?
-```
-
-As our component becomes more functional, this separation becomes increasingly important.
 
 ---
 
-# Part 3: Make Angular Load the Component
+# Part 8 — Dynamically Generate a Card for Every Claim
 
-Our component now exists, but Angular doesn't yet know **when to display it**.
+Now that `claims` contains repository data, Angular can dynamically generate UI elements from the array.
 
-To make the component accessible within our application, we'll create a route.
+Replace the current HTML with:
+
+```html
+<div class="dashboard">
+
+    <h1>{{ dashboardTitle }}</h1>
+
+    <h2>Total Claims: {{ claims.length }}</h2>
+
+    <div class="claims-grid">
+
+        @for (claim of claims; track claim.id) {
+
+            <div class="claim-card">
+
+                <h2>
+                    {{ claim.name }}
+                </h2>
+
+                <p>
+                    {{ claim.documents.length }} Documents
+                </p>
+
+            </div>
+
+        }
+
+    </div>
+
+</div>
+```
+
+The Angular control flow:
+
+```html
+@for (claim of claims; track claim.id)
+```
+
+creates one block of HTML for every object in the `claims` array.
+
+The repository now determines how many claim cards appear.
+
+### Checkpoint
+
+Reload the dashboard.
+
+You should see one card for every claim folder.
+
+At this stage every card should report:
+
+```text
+0 Documents
+```
+
+That's expected.
+
+We have discovered the claims, but we have not queried the files inside them yet.
 
 ---
 
-## Step 4: Open the Application Routes
+# Part 9 — Retrieve Documents for a Claim
+
+Return to:
+
+```text
+customDashComponent.ts
+```
+
+Create a new method below `loadClaims()`:
+
+```typescript
+private async loadClaimDocuments(
+    claimPath: string
+): Promise<ClaimDocument[]> {
+
+}
+```
+
+This method receives the path of a claim.
+
+For example:
+
+```text
+/uidev_claims/CLM-10001
+```
+
+---
+
+## Query the Claim Folder
+
+Inside the method, create another repository query:
+
+```typescript
+const documentQuery: Query = {
+    query: `
+        SELECT *
+        FROM SysContent
+        WHERE sys_parentPath = '${claimPath}'
+    `,
+    limit: 1000,
+    offset: 0
+};
+```
+
+Unlike the previous query, this query requests:
+
+```sql
+FROM SysContent
+```
+
+because we want the files stored inside the claim folder.
+
+Execute the query:
+
+```typescript
+const response =
+    await this.queryApi.getDocumentsByQuery(documentQuery);
+```
+
+Retrieve the results:
+
+```typescript
+const result: QueryResult = response.data;
+
+const documents = result.documents ?? [];
+```
+
+---
+
+## Transform Repository Documents
+
+The repository returns objects containing system properties such as:
+
+```text
+sys_id
+sys_name
+sys_path
+sys_primaryType
+sys_created
+sys_modified
+```
+
+Transform those values into our `ClaimDocument` interface:
+
+```typescript
+return documents.map((document: any) => {
+
+    return {
+        id: document.sys_id,
+        name: document.sys_name,
+        path: document.sys_path,
+        primaryType: document.sys_primaryType,
+        created: document.sys_created,
+        modified: document.sys_modified
+    };
+
+});
+```
+
+The completed method should be:
+
+```typescript
+private async loadClaimDocuments(
+    claimPath: string
+): Promise<ClaimDocument[]> {
+
+    const documentQuery: Query = {
+        query: `
+            SELECT *
+            FROM SysContent
+            WHERE sys_parentPath = '${claimPath}'
+        `,
+        limit: 1000,
+        offset: 0
+    };
+
+    const response =
+        await this.queryApi.getDocumentsByQuery(documentQuery);
+
+    const result: QueryResult = response.data;
+
+    const documents = result.documents ?? [];
+
+    return documents.map((document: any) => {
+
+        return {
+            id: document.sys_id,
+            name: document.sys_name,
+            path: document.sys_path,
+            primaryType: document.sys_primaryType,
+            created: document.sys_created,
+            modified: document.sys_modified
+        };
+
+    });
+}
+```
+
+---
+
+# Part 10 — Load Documents for Every Claim
+
+We now have two capabilities:
+
+```text
+loadClaims()
+    → Finds claims
+
+loadClaimDocuments()
+    → Finds documents inside one claim
+```
+
+Next, connect them.
+
+Return to `loadClaims()`.
+
+Find the temporary code:
+
+```typescript
+this.claims = claimFolders.map((folder: any) => ({
+    id: folder.sys_id,
+    name: folder.sys_name,
+    path: folder.sys_path,
+    created: folder.sys_created,
+    modified: folder.sys_modified,
+    documents: []
+}));
+```
+
+Remove it.
+
+Replace it with:
+
+```typescript
+this.claims = await Promise.all(
+
+    claimFolders.map(async (folder: any) => {
+
+        const documents =
+            await this.loadClaimDocuments(folder.sys_path);
+
+        return {
+            id: folder.sys_id,
+            name: folder.sys_name,
+            path: folder.sys_path,
+            created: folder.sys_created,
+            modified: folder.sys_modified,
+            documents: documents
+        };
+
+    })
+
+);
+```
+
+`Promise.all()` allows the application to retrieve the document collections for the claim folders without processing each request strictly one at a time.
+
+The resulting `claims` array now contains both levels of information:
+
+```text
+claims
+│
+├── Claim
+│   ├── name
+│   ├── path
+│   └── documents
+│       ├── Document
+│       ├── Document
+│       └── Document
+│
+├── Claim
+│   ├── name
+│   └── documents
+│       └── Document
+│
+└── ...
+```
+
+---
+
+## Sort the Claims
+
+After `Promise.all()`, add:
+
+```typescript
+this.claims.sort((a, b) =>
+    a.name.localeCompare(b.name)
+);
+```
+
+This keeps the dashboard presentation predictable regardless of the order returned by the repository.
+
+---
+
+# Part 11 — Display Claim Documents
+
+Return to:
+
+```text
+customDashComponent.html
+```
+
+Inside each claim card, add another Angular `@for`:
+
+```html
+@for (claim of claims; track claim.id) {
+
+    <div class="claim-card">
+
+        <h2>
+            {{ claim.name }}
+        </h2>
+
+        <p>
+            {{ claim.documents.length }} Documents
+        </p>
+
+        @for (
+            document of claim.documents;
+            track document.id
+        ) {
+
+            <div class="document-row">
+
+                <span>
+                    📄
+                </span>
+
+                <span>
+                    {{ document.name }}
+                </span>
+
+            </div>
+
+        }
+
+    </div>
+
+}
+```
+
+We now have **nested dynamic content**:
+
+```text
+@for each Claim
+        │
+        └── @for each Document
+```
+
+The first loop generates claim cards.
+
+The second loop generates the documents belonging to that claim.
+
+### Checkpoint
+
+Reload the dashboard.
+
+Verify:
+
+- The correct number of claims appears.
+- Each claim appears once.
+- The correct number of documents appears for each claim.
+- File names are displayed beneath the correct claim.
+
+---
+
+# Part 12 — Handle Claims Without Documents
+
+A claim might exist before supporting documentation has been added.
+
+Inside the document section, add:
+
+```html
+@if (claim.documents.length === 0) {
+
+    <div class="no-documents">
+
+        No documents have been
+        added to this claim.
+
+    </div>
+
+}
+```
+
+Then display documents with:
+
+```html
+@for (
+    document of claim.documents;
+    track document.id
+) {
+
+    <div class="document-row">
+
+        <div class="document-icon">
+            📄
+        </div>
+
+        <div class="document-details">
+
+            <div class="document-name">
+                {{ document.name }}
+            </div>
+
+            <div class="document-type">
+                {{ document.primaryType }}
+            </div>
+
+        </div>
+
+    </div>
+
+}
+```
+
+This provides useful feedback instead of displaying an empty card.
+
+---
+
+# Part 13 — Add Loading and Error States
+
+Repository data takes time to retrieve.
+
+The component already contains:
+
+```typescript
+isLoading = true;
+loadError = '';
+```
+
+And `loadClaims()` sets:
+
+```typescript
+this.isLoading = true;
+```
+
+before retrieving data.
+
+The `finally` block sets:
+
+```typescript
+this.isLoading = false;
+```
+
+after the request completes.
+
+Use those values in the template:
+
+```html
+@if (isLoading) {
+
+    <div class="message-card">
+
+        <h2>Loading Claims</h2>
+
+        <p>
+            Retrieving claim information from the
+            Content Repository...
+        </p>
+
+    </div>
+
+} @else if (loadError) {
+
+    <div class="message-card error-card">
+
+        <h2>Unable to Load Claims</h2>
+
+        <p>
+            {{ loadError }}
+        </p>
+
+    </div>
+
+} @else {
+
+    <!-- Claims dashboard -->
+
+}
+```
+
+This creates three possible application states:
+
+```text
+Loading
+   │
+   ├── Success → Display Claims
+   │
+   └── Failure → Display Error
+```
+
+---
+
+# Part 14 — Complete the TypeScript Component
+
+Your completed `customDashComponent.ts` should now resemble:
+
+```typescript
+import { Component, inject, OnInit } from '@angular/core';
+import {
+    Query,
+    QueryApi,
+    QueryResult
+} from '@hylandsoftware/hxcs-js-client';
+import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
+
+interface ClaimDocument {
+    id: string;
+    name: string;
+    path: string;
+    primaryType: string;
+    created: string;
+    modified: string;
+}
+
+interface Claim {
+    id: string;
+    name: string;
+    path: string;
+    created: string;
+    modified: string;
+    documents: ClaimDocument[];
+}
+
+@Component({
+    selector: 'hxp-dashboard',
+    templateUrl: './customDashComponent.html',
+    styleUrls: ['./customDashComponent.scss']
+})
+export class customDashComponent implements OnInit {
+
+    private queryApi = inject<QueryApi>(QUERY_API_TOKEN);
+
+    dashboardTitle = 'Insurance Claims Dashboard';
+
+    claims: Claim[] = [];
+
+    isLoading = true;
+    loadError = '';
+
+    ngOnInit(): void {
+        this.loadClaims();
+    }
+
+    async loadClaims(): Promise<void> {
+
+        this.isLoading = true;
+        this.loadError = '';
+
+        try {
+
+            const claimQuery: Query = {
+                query: `
+                    SELECT *
+                    FROM SysFolder
+                    WHERE sys_parentPath = '/uidev_claims'
+                `,
+                limit: 1000,
+                offset: 0
+            };
+
+            const response =
+                await this.queryApi.getDocumentsByQuery(claimQuery);
+
+            const result: QueryResult = response.data;
+
+            const claimFolders = result.documents ?? [];
+
+            console.log(
+                `Found ${claimFolders.length} claim folders.`,
+                claimFolders
+            );
+
+            this.claims = await Promise.all(
+
+                claimFolders.map(async (folder: any) => {
+
+                    const documents =
+                        await this.loadClaimDocuments(folder.sys_path);
+
+                    return {
+                        id: folder.sys_id,
+                        name: folder.sys_name,
+                        path: folder.sys_path,
+                        created: folder.sys_created,
+                        modified: folder.sys_modified,
+                        documents: documents
+                    };
+
+                })
+
+            );
+
+            this.claims.sort((a, b) =>
+                a.name.localeCompare(b.name)
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Unable to load claims:',
+                error
+            );
+
+            this.loadError =
+                'Unable to retrieve claims from the Content Repository.';
+
+        } finally {
+
+            this.isLoading = false;
+
+        }
+    }
+
+
+    private async loadClaimDocuments(
+        claimPath: string
+    ): Promise<ClaimDocument[]> {
+
+        const documentQuery: Query = {
+            query: `
+                SELECT *
+                FROM SysContent
+                WHERE sys_parentPath = '${claimPath}'
+            `,
+            limit: 1000,
+            offset: 0
+        };
+
+        const response =
+            await this.queryApi.getDocumentsByQuery(documentQuery);
+
+        const result: QueryResult = response.data;
+
+        const documents = result.documents ?? [];
+
+        return documents.map((document: any) => {
+
+            return {
+                id: document.sys_id,
+                name: document.sys_name,
+                path: document.sys_path,
+                primaryType: document.sys_primaryType,
+                created: document.sys_created,
+                modified: document.sys_modified
+            };
+
+        });
+    }
+}
+```
+
+---
+
+# Part 15 — Build the Finished Dashboard Template
+
+Now replace the working test HTML with the finished dashboard structure:
+
+```html
+<div class="dashboard">
+
+    <div class="dashboard-header">
+
+        <div>
+            <div class="eyebrow">
+                CLAIMS MANAGEMENT
+            </div>
+
+            <h1>
+                {{ dashboardTitle }}
+            </h1>
+
+            <p class="subtitle">
+                Claims and supporting documents from the
+                HxP Content Repository.
+            </p>
+        </div>
+
+        <div class="total-claims-card">
+
+            <div class="total-label">
+                TOTAL CLAIMS
+            </div>
+
+            <div class="total-number">
+                {{ claims.length }}
+            </div>
+
+            <div class="total-description">
+                Claims in repository
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @if (isLoading) {
+
+        <div class="message-card">
+
+            <div class="loading-spinner"></div>
+
+            <h2>Loading Claims</h2>
+
+            <p>
+                Retrieving claim information from the
+                Content Repository...
+            </p>
+
+        </div>
+
+    } @else if (loadError) {
+
+        <div class="message-card error-card">
+
+            <h2>Unable to Load Claims</h2>
+
+            <p>
+                {{ loadError }}
+            </p>
+
+        </div>
+
+    } @else {
+
+        <div class="section-header">
+
+            <div>
+                <h2>Claims</h2>
+
+                <p>
+                    Review the supporting documents
+                    associated with each claim.
+                </p>
+            </div>
+
+            <div class="claim-count">
+                {{ claims.length }} Claims
+            </div>
+
+        </div>
+
+
+        @if (claims.length === 0) {
+
+            <div class="message-card">
+
+                <h2>No Claims Found</h2>
+
+                <p>
+                    There are currently no claims in the
+                    uidev_claims repository folder.
+                </p>
+
+            </div>
+
+        }
+
+
+        <div class="claims-grid">
+
+            @for (claim of claims; track claim.id) {
+
+                <div class="claim-card">
+
+                    <div class="claim-header">
+
+                        <div>
+
+                            <div class="claim-label">
+                                CLAIM
+                            </div>
+
+                            <h2>
+                                {{ claim.name }}
+                            </h2>
+
+                        </div>
+
+                        <div class="document-count">
+
+                            <strong>
+                                {{ claim.documents.length }}
+                            </strong>
+
+                            <span>
+                                Documents
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="documents-header">
+                        Supporting Documents
+                    </div>
+
+
+                    <div class="documents">
+
+                        @if (claim.documents.length === 0) {
+
+                            <div class="no-documents">
+                                No documents have been
+                                added to this claim.
+                            </div>
+
+                        }
+
+
+                        @for (
+                            document of claim.documents;
+                            track document.id
+                        ) {
+
+                            <div class="document-row">
+
+                                <div class="document-icon">
+                                    📄
+                                </div>
+
+                                <div class="document-details">
+
+                                    <div class="document-name">
+                                        {{ document.name }}
+                                    </div>
+
+                                    <div class="document-type">
+                                        {{ document.primaryType }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+
+                    <div class="claim-footer">
+
+                        {{ claim.documents.length }}
+                        supporting document(s)
+
+                    </div>
+
+                </div>
+
+            }
+
+        </div>
+
+    }
+
+</div>
+```
+
+---
+
+# Part 16 — Style the Dashboard
+
+Open:
+
+```text
+customDashComponent.scss
+```
+
+Add the following styles:
+
+```scss
+:host {
+    display: block;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+.dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #1f2937;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 45px;
+}
+
+.eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    color: #667085;
+    margin-bottom: 8px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 700;
+    color: #172b4d;
+}
+
+.subtitle {
+    margin-top: 10px;
+    color: #667085;
+    font-size: 16px;
+}
+
+.total-claims-card {
+    background: white;
+    min-width: 180px;
+    padding: 22px 28px;
+    border-radius: 12px;
+    border: 1px solid #e3e7ed;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.total-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #667085;
+}
+
+.total-number {
+    font-size: 42px;
+    line-height: 1;
+    font-weight: 700;
+    color: #172b4d;
+    margin: 8px 0;
+}
+
+.total-description {
+    font-size: 13px;
+    color: #667085;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #172b4d;
+}
+
+.section-header p {
+    margin: 6px 0 0;
+    color: #667085;
+}
+
+.claim-count {
+    background: #e9eef6;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+}
+
+.claims-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(360px, 1fr));
+    gap: 22px;
+}
+
+.claim-card {
+    background: white;
+    border: 1px solid #e1e6ed;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 2px 7px rgba(0, 0, 0, 0.04);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.claim-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 7px 18px rgba(0, 0, 0, 0.08);
+}
+
+.claim-header {
+    padding: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.claim-label {
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    font-weight: 700;
+    color: #667085;
+}
+
+.claim-header h2 {
+    margin: 5px 0 0;
+    font-size: 20px;
+    color: #172b4d;
+}
+
+.document-count {
+    text-align: center;
+    background: #f2f5f9;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.document-count strong {
+    display: block;
+    font-size: 18px;
+    color: #172b4d;
+}
+
+.document-count span {
+    display: block;
+    font-size: 10px;
+    color: #667085;
+    margin-top: 2px;
+}
+
+.documents-header {
+    padding: 14px 22px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    color: #667085;
+}
+
+.documents {
+    padding: 0 14px 14px;
+}
+
+.document-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 8px;
+    border-radius: 7px;
+}
+
+.document-row:hover {
+    background: #f6f8fb;
+}
+
+.document-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #eef2f7;
+    border-radius: 7px;
+    flex-shrink: 0;
+}
+
+.document-details {
+    min-width: 0;
+}
+
+.document-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #344054;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.document-type {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #98a2b3;
+}
+
+.no-documents {
+    padding: 20px 8px;
+    color: #98a2b3;
+    font-size: 13px;
+    text-align: center;
+}
+
+.claim-footer {
+    padding: 12px 22px;
+    background: #fafbfc;
+    border-top: 1px solid #edf0f4;
+    color: #667085;
+    font-size: 11px;
+}
+
+.message-card {
+    background: white;
+    border: 1px solid #e1e6ed;
+    border-radius: 12px;
+    padding: 50px;
+    text-align: center;
+}
+
+.message-card h2 {
+    margin: 10px 0;
+    color: #172b4d;
+}
+
+.message-card p {
+    color: #667085;
+}
+
+.error-card {
+    border-color: #f1b5b5;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 15px;
+    border: 3px solid #e4e7ec;
+    border-top-color: #475467;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 700px) {
+
+    .dashboard {
+        padding: 20px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .total-claims-card {
+        width: auto;
+    }
+
+    .claims-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+```
+
+---
+
+# Part 17 — Test the Completed Dashboard
+
+Save all three files and allow the Angular development server to rebuild the application.
 
 Navigate to:
 
 ```text
-libs/workspace-hxp/app-shell/src/lib/
-```
-
-Open:
-
-```text
-experience-workspace-app-shell.routes.ts
-```
-
-This file defines routes within the Angular application.
-
----
-
-## Step 5: Import the Component
-
-At the top of the file, add:
-
-```typescript
-import { customDashComponent } from '../../../../dashboard/customDashComponent';
-```
-
-### Why Is This Necessary?
-
-We created the component, but the routing file does not automatically know that it exists.
-
-The `import` makes our component available to the routing configuration.
-
----
-
-# Part 4: Create a Route
-
-## Step 6: Add the Dashboard Route
-
-Locate the `APP_ROUTES` array.
-
-Add the following route:
-
-```typescript
-{
-    path: 'dashboard',
-    component: customDashComponent
-}
-```
-
-This creates the following relationship:
-
-```text
-/dashboard
-     ↓
-Angular Router
-     ↓
-customDashComponent
-     ↓
-customDashComponent.html
-```
-
-When Angular receives a request for the `/dashboard` route, it will load our component.
-
----
-
-# Part 5: Test the Component
-
-## Step 7: Start the Application
-
-Ensure that all edited files are saved.
-
-Open a Terminal window at the root directory of your Custom UI and run:
-
-```bash
-npm start workspace-hxp
-```
-
-Once the application starts, navigate to:
-
-```text
 http://localhost:4200/#/dashboard
 ```
 
-You should see:
+Verify the following:
 
-> # Claims Dashboard
->
-> My dashboard component is working!
+## Testing Checklist
+
+- [ ] The dashboard loads without compilation errors.
+- [ ] The dashboard retrieves claims from `/uidev_claims`.
+- [ ] **Total Claims** matches the number of claim folders in the repository.
+- [ ] Each claim folder generates its own dashboard card.
+- [ ] Each card displays the claim folder name.
+- [ ] Each card displays the correct number of supporting documents.
+- [ ] Document filenames appear beneath the correct claim.
+- [ ] A claim without documents displays the empty-document message.
+- [ ] The loading state appears while repository data is being retrieved.
+- [ ] No repository or Angular errors appear in the browser console.
 
 ---
 
-## Checkpoint
+# Understanding the Completed Application
 
-You have now created an Angular component completely from scratch.
-
-You connected:
+The completed application follows this flow:
 
 ```text
-Route
-  ↓
-Component
-  ↓
-Template
-  ↓
-Browser
+Angular loads customDashComponent
+            │
+            ▼
+         ngOnInit()
+            │
+            ▼
+        loadClaims()
+            │
+            ▼
+      HxP QueryApi
+            │
+            ▼
+SELECT folders beneath
+     /uidev_claims
+            │
+            ▼
+      Claim Folders
+            │
+            ▼
+   For Each Claim Folder
+            │
+            ▼
+   loadClaimDocuments()
+            │
+            ▼
+SELECT content beneath
+     the claim path
+            │
+            ▼
+      Claim Documents
+            │
+            ▼
+       claims[]
+            │
+            ▼
+ Angular Template @for
+            │
+            ▼
+   Claims Dashboard
 ```
 
-Before continuing, make sure you understand the responsibility of each part.
+The important architectural concept is that the **repository is the source of truth**.
+
+The application does not know beforehand:
+
+- How many claims exist.
+- What the claim numbers are.
+- How many documents belong to a claim.
+- What the document filenames are.
+
+Those values are discovered at runtime.
 
 ---
 
-# Part 6: Give the Component Data
+# Key Concepts
 
-Our component can display HTML, but the content is currently hard-coded directly into the template.
+## Dependency Injection
 
-Let's move some of that information into the component.
-
----
-
-## Step 8: Create a Component Property
-
-Open:
-
-```text
-customDashComponent.ts
-```
-
-Update the component class: **[FACILITATOR TYPE-ALONG]**
+The component obtains the repository API through:
 
 ```typescript
-add a variable called dashboardTitle with the string value of 'Insurance Claims Dashboard'
+private queryApi = inject<QueryApi>(QUERY_API_TOKEN);
 ```
 
-Now open:
+This allows the component to use the Query API already configured by the application.
 
-```text
-customDashComponent.html
+---
+
+## HXQL
+
+HXQL is used to determine what repository content should be returned.
+
+Claims are retrieved with:
+
+```sql
+SELECT *
+FROM SysFolder
+WHERE sys_parentPath = '/uidev_claims'
 ```
 
-Replace:
+Documents are retrieved with:
+
+```sql
+SELECT *
+FROM SysContent
+WHERE sys_parentPath = '/uidev_claims/CLAIM'
+```
+
+---
+
+## Component State
+
+Repository results are stored in:
+
+```typescript
+claims: Claim[] = [];
+```
+
+Once the array changes, Angular updates the template.
+
+---
+
+## Interpolation
+
+Values are displayed using interpolation:
 
 ```html
-<h1>Claims Dashboard</h1>
+{{ claims.length }}
 ```
 
-with:
+and:
 
 ```html
-<h1>{{ dashboardTitle }}</h1>
+{{ document.name }}
 ```
-
-Save both files.
-
-Your browser should now display:
-
-> # Insurance Claims Dashboard
 
 ---
 
-## What Just Happened?
+## Angular Control Flow
 
-The following property exists in our TypeScript component:
-
-```typescript
-dashboardTitle = 'Insurance Claims Dashboard';
-```
-
-Our HTML accesses that property using:
+Conditional content is displayed using:
 
 ```html
-{{ dashboardTitle }}
+@if (...)
 ```
 
-This is called **interpolation**.
-
-Conceptually:
-
-```text
-COMPONENT
-
-dashboardTitle
-      │
-      ▼
-{{ dashboardTitle }}
-
-TEMPLATE
-```
-
-Instead of the HTML deciding what the title is, the **component now owns that data**.
-
----
-
-# Part 7: Add More Component Data
-
-## Step 9: Add Claim Information
-
-Let's give our component additional information.
-
-Update the component:
-
-```typescript
-export class customDashComponent {
-
-    dashboardTitle = 'Insurance Claims Dashboard';
-
-    openClaims = 128;
-    approvedToday = 34;
-    underReview = 57;
-    highPriority = 12;
-
-}
-```
-
-Now update the HTML:
+Collections are rendered using:
 
 ```html
-<h1>{{ dashboardTitle }}</h1>
-
-<h2>Claim Overview</h2>
-
-<p>Open Claims: {{ openClaims }}</p>
-<p>Approved Today: {{ approvedToday }}</p>
-<p>Under Review: {{ underReview }}</p>
-<p>High Priority: {{ highPriority }}</p>
+@for (...)
 ```
 
-Save both files.
-
-Your dashboard should now display the values stored by the component.
-
-The flow looks like this:
-
-```text
-TypeScript Data
-       ↓
-     Angular
-       ↓
-      HTML
-       ↓
-     Browser
-```
-
-Our component now **knows information** that can be presented within the UI.
-
-Next, we'll make it actually **do something**.
+This allows the dashboard UI to respond to repository data rather than requiring hard-coded HTML for every claim.
 
 ---
 
-# Part 8: Give the Component Behavior
+# Challenge
 
-## Step 10: Create a Component Method
+If time permits, consider how you might extend the dashboard.
 
-Open:
+For example:
 
-```text
-customDashComponent.ts
-```
+- Make a document filename clickable.
+- Open a document from the repository.
+- Display different icons for PDFs and images.
+- Display the date a claim was created.
+- Sort claims by creation date.
+- Add a search field for claim numbers.
+- Add a document total across all claims.
+- Refresh the dashboard without reloading the page.
 
-Add the following method:
-
-```typescript
-showMessage(): void {
-    console.log('Dashboard button clicked!');
-}
-```
-
-Your component should now look similar to:
-
-```typescript
-export class customDashComponent {
-
-    dashboardTitle = 'Insurance Claims Dashboard';
-
-    openClaims = 128;
-    approvedToday = 34;
-    underReview = 57;
-    highPriority = 12;
-
-    showMessage(): void {
-        console.log('Dashboard button clicked!');
-    }
-
-}
-```
-
-Now open:
-
-```text
-customDashComponent.html
-```
-
-Add:
-
-```html
-<button (click)="showMessage()">
-    Test Dashboard
-</button>
-```
-
-Save both files.
-
----
-
-## Step 11: Test the Method
-
-Open your browser's Developer Tools and select the **Console**.
-
-Click:
-
-**Test Dashboard**
-
-You should see:
-
-```text
-Dashboard button clicked!
-```
-
-We've now connected an event within the HTML to functionality within our component.
-
-```text
-HTML
- │
- │ click
- ▼
-Component Method
- │
- ▼
-Application Logic
-```
-
-The following Angular syntax:
-
-```html
-(click)="showMessage()"
-```
-
-is an example of **event binding**.
-
-When the user clicks the button, Angular calls the `showMessage()` method in our component.
-
----
-
-# Part 9: Let Component Behavior Change the UI
-
-Logging information to the browser console is useful for testing, but let's make our component change something the user can actually see.
-
----
-
-## Step 12: Create a Status Property
-
-Add the following property to your component:
-
-```typescript
-statusMessage = '';
-```
-
-Now change the `showMessage()` method:
-
-```typescript
-showMessage(): void {
-    this.statusMessage = 'Dashboard functionality is working!';
-}
-```
-
-Your component should now contain:
-
-```typescript
-export class customDashComponent {
-
-    dashboardTitle = 'Insurance Claims Dashboard';
-
-    openClaims = 128;
-    approvedToday = 34;
-    underReview = 57;
-    highPriority = 12;
-
-    statusMessage = '';
-
-    showMessage(): void {
-        this.statusMessage = 'Dashboard functionality is working!';
-    }
-
-}
-```
-
----
-
-## Step 13: Display the Status
-
-Update the HTML:
-
-```html
-<h1>{{ dashboardTitle }}</h1>
-
-<h2>Claim Overview</h2>
-
-<p>Open Claims: {{ openClaims }}</p>
-<p>Approved Today: {{ approvedToday }}</p>
-<p>Under Review: {{ underReview }}</p>
-<p>High Priority: {{ highPriority }}</p>
-
-<button (click)="showMessage()">
-    Test Dashboard
-</button>
-
-<p>{{ statusMessage }}</p>
-```
-
-Save the files and click the button again.
-
-The browser should display:
-
-```text
-Dashboard functionality is working!
-```
-
----
-
-## What Is Happening?
-
-We now have communication flowing in both directions.
-
-```text
-USER
- │
- ▼
-Button Click
- │
- ▼
-showMessage()
- │
- ▼
-statusMessage changes
- │
- ▼
-Angular updates HTML
- │
- ▼
-USER SEES CHANGE
-```
-
-This is an important transition.
-
-We're no longer simply creating a web page.
-
-We're creating an **application interface that can respond to the user**.
-
----
-
-# Part 10: Introduce the Component Lifecycle
-
-Angular components have a lifecycle.
-
-There are times when we want functionality to occur automatically as the component is created or initialized.
-
----
-
-## Step 14: Add Initialization Logic
-
-Update the component:
-
-```typescript
-export class customDashComponent {
-
-    dashboardTitle = 'Insurance Claims Dashboard';
-
-    openClaims = 128;
-    approvedToday = 34;
-    underReview = 57;
-    highPriority = 12;
-
-    statusMessage = '';
-
-    constructor() {
-    }
-
-    ngOnInit() {
-        console.log('Dashboard component loaded.');
-    }
-
-    showMessage(): void {
-        this.statusMessage = 'Dashboard functionality is working!';
-    }
-
-}
-```
-
-Save the file and reload the dashboard.
-
-Open the browser console.
-
-You should see:
-
-```text
-Dashboard component loaded.
-```
-
----
-
-## Constructor vs. ngOnInit
-
-For now, think of these as two points where initialization can occur.
-
-### `constructor()`
-
-The constructor runs when the component is created.
-
-```typescript
-constructor() {
-
-}
-```
-
-### `ngOnInit()`
-
-`ngOnInit()` provides a place for initialization logic when the component starts.
-
-```typescript
-ngOnInit() {
-
-}
-```
-
-We'll encounter these again as we add more functionality to our Custom UI.
-
----
-
-# Part 11: Add Component Imports
-
-Components frequently rely on functionality provided by Angular, Angular Material, ADF, or other components.
-
-To use that functionality, we need to make it available to our component.
-
----
-
-## Step 15: Add Imports
-
-At the top of:
-
-```text
-customDashComponent.ts
-```
-
-add:
-
-```typescript
-import { Component } from '@angular/core';
-import { MatDividerModule } from '@angular/material/divider';
-import { HeaderComponent } from '@hxp/shared-hxp/navigation/header';
-import { RouterLink } from '@angular/router';
-```
-
-> **NOTE:** If `Component` is already imported, do not add a second `Component` import. Replace the existing import section with the code above.
-
-Now update the `@Component` configuration:
-
-```typescript
-@Component({
-    selector: 'hxp-dashboard',
-    templateUrl: './customDashComponent.html',
-    imports: [
-        MatDividerModule,
-        HeaderComponent,
-        RouterLink
-    ]
-})
-```
-
----
-
-## Why Do Components Need Imports?
-
-Our component doesn't automatically have access to every capability available within the application.
-
-Imports allow us to make additional functionality available to our component.
-
-Conceptually:
-
-```text
-Angular / ADF Functionality
-           ↓
-        Imports
-           ↓
-       Component
-           ↓
-        Template
-```
-
-As we build more sophisticated components, imports will become increasingly important.
-
----
-
-# Part 12: Review the Component
-
-Before continuing, let's look at what our component now contains.
-
-```text
-Component
-├── Metadata
-├── Template
-├── Properties
-├── Methods
-├── Lifecycle
-└── Imports
-```
-
-We've built each of these pieces individually.
-
-Our component has progressed from:
-
-```typescript
-export class customDashComponent {
-
-}
-```
-
-to a component that:
-
-- Stores information
-- Displays information
-- Responds to user actions
-- Changes the UI
-- Runs initialization logic
-- Uses additional Angular functionality
-- Can be loaded through an Angular route
-
----
-
-# Part 13: Build the Claims Dashboard
-
-Now that we understand how our component works, we can replace our simple training interface with a more realistic Claims Dashboard.
-
-Open:
-
-```text
-customDashComponent.html
-```
-
-Replace the training HTML with the Claims Dashboard HTML provided by your instructor.
-
-The new interface will include elements such as:
-
-- Claims summary cards
-- Recent claim cases
-- Claim statuses
-- Featured claim information
-- Recent activity
-- Dashboard navigation
-
-Save the file and return to:
-
-```text
-http://localhost:4200/#/dashboard
-```
-
-Your simple training component should now appear as a complete Claims Dashboard.
-
----
-
-# Part 14: Simplify the Component
-
-The properties and methods we created earlier were used to demonstrate how Angular components work.
-
-They are not currently required by our completed dashboard HTML.
-
-Update `customDashComponent.ts` to:
-
-```typescript
-import { Component } from '@angular/core';
-import { MatDividerModule } from '@angular/material/divider';
-import { HeaderComponent } from '@hxp/shared-hxp/navigation/header';
-import { RouterLink } from '@angular/router';
-
-@Component({
-    selector: 'hxp-dashboard',
-    templateUrl: './customDashComponent.html',
-    imports: [MatDividerModule, HeaderComponent, RouterLink],
-})
-export class customDashComponent {
-
-    constructor() {
-    }
-
-    ngOnInit() {
-
-    }
-}
-```
-
-Save the file.
+> These features are not required to complete the lab. They demonstrate how the same repository data can support increasingly sophisticated Custom UI experiences.
 
 ---
 
 # Lab Complete
 
-You have now created an Angular component from scratch and progressively added functionality to it.
+You have built a dynamic Angular dashboard that connects directly to the HxP Content Repository.
 
-You worked with:
-
-- Component creation
-- `@Component` configuration
-- HTML templates
-- Component properties
-- Interpolation
-- Event binding
-- Component methods
-- UI state changes
-- Component lifecycle
-- Component imports
-- Angular routing
-
-Most importantly, you've seen how these pieces work together:
+The completed solution combines several Angular and Automate Custom UI concepts:
 
 ```text
-                 Angular Component
-                        │
-            ┌───────────┴───────────┐
-            ▼                       ▼
-     Application Logic         HTML Template
-            │                       │
-            └───────────┬───────────┘
-                        ▼
-                   User Interface
-```
-
----
-
-# What's Next?
-
-Our Claims Dashboard works, but every user currently receives the same experience.
-
-What if our Custom UI could determine **who the current user is** and change its behavior accordingly?
-
-Next, we'll expand our component functionality to work with:
-
-```text
-Component
-    ↓
-Angular Services
-    ↓
+Angular Components
+       +
 Dependency Injection
-    ↓
-IdentityUserService
-    ↓
-Current User
-    ↓
-Group Membership
-    ↓
-Conditional Logic
-    ↓
-Angular Routing
-    ↓
-Different User Experiences
+       +
+TypeScript Interfaces
+       +
+Async API Calls
+       +
+HxP QueryApi
+       +
+HXQL
+       +
+Component State
+       +
+@if / @for
+       +
+HTML / SCSS
+       =
+Dynamic Custom UI
 ```
 
-This will move us from building an individual Angular component to building a Custom UI that can make decisions and respond to the context of the authenticated user.
+Rather than creating a static page, you have created an application that **discovers repository content and transforms that data into a usable interface**.
+
+This same pattern can be applied to many other Custom UI requirements where Automate processes create or manage content that users need to review through a purpose-built interface.
