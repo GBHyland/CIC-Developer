@@ -351,7 +351,35 @@ We will create that method next.
 
 # Part 6 — Query the Claim Folders
 
-Create the following method inside the component:
+Now that the component has access to the repository's `QueryApi`, we can create a method that retrieves the claim folders.
+
+Each folder directly inside:
+
+```text
+/uidev_claims
+```
+
+represents one insurance claim.
+
+Our method will:
+
+1. Prepare the component for loading data.
+2. Attempt to query the repository.
+3. Process the results if the query succeeds.
+4. Display an error if something goes wrong.
+5. Finish the loading state when the operation is complete.
+
+---
+
+## Create the `loadClaims()` Method
+
+Open:
+
+```text
+libs/dashboard/customDashComponent.ts
+```
+
+Inside the `customDashComponent` class, below `ngOnInit()`, add:
 
 ```typescript
 async loadClaims(): Promise<void> {
@@ -362,94 +390,50 @@ async loadClaims(): Promise<void> {
 }
 ```
 
-The method is asynchronous because repository requests do not return immediately.
+Your component should now contain:
+
+```typescript
+ngOnInit(): void {
+    this.loadClaims();
+}
+
+async loadClaims(): Promise<void> {
+
+    this.isLoading = true;
+    this.loadError = '';
+
+}
+```
+
+### What does `async` mean?
+
+Retrieving information from the Content Repository takes time.
+
+Marking the method as:
+
+```typescript
+async
+```
+
+allows the method to wait for the repository to respond before continuing.
+
+Later in the method, we will use:
+
+```typescript
+await
+```
+
+to wait for that response.
 
 ---
 
-## Create the HXQL Query
+## Add Error Handling
 
-Inside the `try` block, create a `Query` object:
+Repository requests can fail for many reasons, including connectivity, permissions, or an invalid query.
 
-```typescript
-const claimQuery: Query = {
-    query: `
-        SELECT *
-        FROM SysFolder
-        WHERE sys_parentPath = '/uidev_claims'
-    `,
-    limit: 1000,
-    offset: 0
-};
-```
+We do not want an error to cause the dashboard to fail without providing useful feedback.
 
-The HXQL statement:
-
-```sql
-SELECT *
-FROM SysFolder
-WHERE sys_parentPath = '/uidev_claims'
-```
-
-requests folders whose immediate parent path is:
-
-```text
-/uidev_claims
-```
-
-Because each folder directly inside `uidev_claims` represents a claim, the results become our collection of claims.
-
----
-
-## Execute the Query
-
-Add:
-
-```typescript
-const response =
-    await this.queryApi.getDocumentsByQuery(claimQuery);
-```
-
-Then retrieve the query result:
-
-```typescript
-const result: QueryResult = response.data;
-```
-
-And obtain the returned repository documents:
-
-```typescript
-const claimFolders = result.documents ?? [];
-```
-
-The `?? []` provides an empty array when no documents are returned.
-
-For testing, add:
-
-```typescript
-console.log(
-    `Found ${claimFolders.length} claim folders.`,
-    claimFolders
-);
-```
-
----
-
-## Initial Test
-
-For now, temporarily add:
-
-```typescript
-this.claims = claimFolders.map((folder: any) => ({
-    id: folder.sys_id,
-    name: folder.sys_name,
-    path: folder.sys_path,
-    created: folder.sys_created,
-    modified: folder.sys_modified,
-    documents: []
-}));
-```
-
-Complete the method with basic error handling:
+Inside `loadClaims()`, add a `try`, `catch`, and `finally` structure:
 
 ```typescript
 async loadClaims(): Promise<void> {
@@ -459,36 +443,7 @@ async loadClaims(): Promise<void> {
 
     try {
 
-        const claimQuery: Query = {
-            query: `
-                SELECT *
-                FROM SysFolder
-                WHERE sys_parentPath = '/uidev_claims'
-            `,
-            limit: 1000,
-            offset: 0
-        };
-
-        const response =
-            await this.queryApi.getDocumentsByQuery(claimQuery);
-
-        const result: QueryResult = response.data;
-
-        const claimFolders = result.documents ?? [];
-
-        console.log(
-            `Found ${claimFolders.length} claim folders.`,
-            claimFolders
-        );
-
-        this.claims = claimFolders.map((folder: any) => ({
-            id: folder.sys_id,
-            name: folder.sys_name,
-            path: folder.sys_path,
-            created: folder.sys_created,
-            modified: folder.sys_modified,
-            documents: []
-        }));
+        // We will query the repository here.
 
     } catch (error) {
 
@@ -508,19 +463,358 @@ async loadClaims(): Promise<void> {
 }
 ```
 
-### Checkpoint
+### Understanding `try`, `catch`, and `finally`
 
-Save the file and reload the dashboard.
+The `try` block contains the code we want the application to attempt:
 
-Open the browser developer tools and verify that the console reports the number of claim folders found.
+```typescript
+try {
 
-For example:
+    // Attempt repository operations
+
+}
+```
+
+If something inside `try` fails, execution moves to `catch`:
+
+```typescript
+catch (error) {
+
+    // Handle the error
+
+}
+```
+
+The `finally` block runs after the operation finishes, regardless of whether it succeeded or failed:
+
+```typescript
+finally {
+
+    this.isLoading = false;
+
+}
+```
+
+In our dashboard, this gives us a useful pattern:
+
+```text
+Start Loading
+     │
+     ▼
+    try
+     │
+     ├──── Success ────► Process Repository Data
+     │
+     └──── Failure ────► catch
+                              │
+                              ▼
+                         Display Error
+     │
+     ▼
+  finally
+     │
+     ▼
+Stop Loading
+```
+
+> **Automate Connection**
+>
+> This should look familiar if you have used Try/Catch logic when scripting in an Automate process. The same general idea applies here: attempt an operation and provide controlled behavior when that operation fails.
+
+---
+
+## Create the HXQL Query
+
+Now we have a place to perform our repository operation.
+
+Inside the `try` block, replace:
+
+```typescript
+// We will query the repository here.
+```
+
+with:
+
+```typescript
+const claimQuery: Query = {
+    query: `
+        SELECT *
+        FROM SysFolder
+        WHERE sys_parentPath = '/uidev_claims'
+    `,
+    limit: 1000,
+    offset: 0
+};
+```
+
+Your `try` block should now look like:
+
+```typescript
+try {
+
+    const claimQuery: Query = {
+        query: `
+            SELECT *
+            FROM SysFolder
+            WHERE sys_parentPath = '/uidev_claims'
+        `,
+        limit: 1000,
+        offset: 0
+    };
+
+}
+```
+
+---
+
+## Understanding the Query Object
+
+We created a variable named:
+
+```typescript
+claimQuery
+```
+
+and defined it as a:
+
+```typescript
+Query
+```
+
+The `Query` type comes from the HxP Content Repository client that we imported earlier.
+
+Our object contains three properties:
+
+```typescript
+const claimQuery: Query = {
+    query: `...`,
+    limit: 1000,
+    offset: 0
+};
+```
+
+### `query`
+
+The `query` property contains the HXQL statement that determines what repository content we want to retrieve.
+
+```sql
+SELECT *
+FROM SysFolder
+WHERE sys_parentPath = '/uidev_claims'
+```
+
+Let's break that down.
+
+### `SELECT *`
+
+```sql
+SELECT *
+```
+
+requests the available properties for matching repository objects.
+
+### `FROM SysFolder`
+
+```sql
+FROM SysFolder
+```
+
+limits the results to folders.
+
+This is important because each folder beneath `uidev_claims` represents a claim.
+
+### `WHERE sys_parentPath = '/uidev_claims'`
+
+```sql
+WHERE sys_parentPath = '/uidev_claims'
+```
+
+limits the results to folders whose immediate parent is:
+
+```text
+/uidev_claims
+```
+
+For example, given:
+
+```text
+/uidev_claims
+    /CLM-10001
+    /CLM-10002
+    /CLM-10003
+```
+
+the query returns those three claim folders.
+
+### `limit`
+
+```typescript
+limit: 1000
+```
+
+specifies the maximum number of results requested.
+
+### `offset`
+
+```typescript
+offset: 0
+```
+
+instructs the query to begin with the first available result.
+
+---
+
+## Execute the Repository Query
+
+Creating `claimQuery` only describes what we want to retrieve.
+
+We still need to send that query to the repository.
+
+Immediately after the `claimQuery` object, add:
+
+```typescript
+const response =
+    await this.queryApi.getDocumentsByQuery(claimQuery);
+```
+
+The `await` keyword tells the method:
+
+> Wait for the Content Repository to respond before continuing.
+
+Our code now performs the following:
+
+```text
+claimQuery
+     │
+     ▼
+QueryApi
+     │
+     ▼
+HxP Content Repository
+     │
+     ▼
+Repository Response
+```
+
+---
+
+## Get the Query Results
+
+The repository response contains more than just the documents themselves.
+
+First, retrieve the query result:
+
+```typescript
+const result: QueryResult = response.data;
+```
+
+Then retrieve the documents returned by the query:
+
+```typescript
+const claimFolders = result.documents ?? [];
+```
+
+The `?? []` means:
+
+> If `result.documents` does not contain a value, use an empty array instead.
+
+This ensures `claimFolders` can still be safely processed even when the repository returns no matching claims.
+
+---
+
+## View the Results
+
+Before building the dashboard, let's verify that our query works.
+
+Add:
+
+```typescript
+console.log(
+    `Found ${claimFolders.length} claim folders.`,
+    claimFolders
+);
+```
+
+Your `try` block should now contain:
+
+```typescript
+try {
+
+    const claimQuery: Query = {
+        query: `
+            SELECT *
+            FROM SysFolder
+            WHERE sys_parentPath = '/uidev_claims'
+        `,
+        limit: 1000,
+        offset: 0
+    };
+
+    const response =
+        await this.queryApi.getDocumentsByQuery(claimQuery);
+
+    const result: QueryResult = response.data;
+
+    const claimFolders = result.documents ?? [];
+
+    console.log(
+        `Found ${claimFolders.length} claim folders.`,
+        claimFolders
+    );
+
+}
+```
+
+---
+
+## Test the Repository Query
+
+Save the component and reload the dashboard.
+
+Open your browser's developer tools and select the **Console**.
+
+You should see a message similar to:
 
 ```text
 Found 7 claim folders.
 ```
 
-The exact number depends on the contents of your repository.
+Your number may be different depending on the number of claim folders currently stored in the repository.
+
+Expand the returned array in the console.
+
+Each claim folder should contain repository properties such as:
+
+```text
+sys_id
+sys_name
+sys_parentPath
+sys_path
+sys_primaryType
+sys_created
+sys_modified
+```
+
+For example:
+
+```text
+sys_name: "CLM-10001"
+sys_parentPath: "/uidev_claims"
+sys_path: "/uidev_claims/CLM-10001"
+sys_primaryType: "SysFolder"
+```
+
+### Checkpoint
+
+Before continuing, verify that:
+
+- [ ] The application compiles without errors.
+- [ ] The dashboard loads.
+- [ ] The repository query completes successfully.
+- [ ] The console displays the expected number of claim folders.
+- [ ] The returned objects represent folders inside `/uidev_claims`.
+
+If those checks pass, your Angular component is now successfully retrieving live data from the HxP Content Repository.
 
 ---
 
