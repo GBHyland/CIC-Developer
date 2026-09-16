@@ -313,14 +313,10 @@ Open:
 customDashComponent.ts
 ```
 
-Update the component class:
+Update the component class: **[FACILITATOR TYPE-ALONG]**
 
 ```typescript
-export class customDashComponent {
-
-    dashboardTitle = 'Insurance Claims Dashboard';
-
-}
+add a variable called dashboardTitle with the string value of 'Insurance Claims Dashboard'
 ```
 
 Now open:
