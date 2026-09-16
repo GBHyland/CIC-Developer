@@ -99,8 +99,7 @@ Before beginning this lab, verify that:
 - `uidev_claims` contains one or more claim folders.
 - Claim folders contain test documents such as PDFs or images.
 
-Your project should already contain:
-
+## Generate Our Working Directory and files:
 ```text
 libs/
 └── dashboard/
@@ -108,6 +107,9 @@ libs/
     ├── customDashComponent.html
     └── customDashComponent.scss
 ```
+1. Create the `dashboard` directory under _libs_.
+2. Create the 3 files above.
+
 
 ---
 
