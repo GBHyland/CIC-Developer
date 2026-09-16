@@ -13,7 +13,6 @@ import { ContentActionRef, ExtensionService } from '@alfresco/adf-extensions';
 import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDividerModule } from '@angular/material/divider';
-import { HeaderComponent } from '@hxp/shared-hxp/navigation/header';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { RouterLink } from '@angular/router';
@@ -35,7 +34,7 @@ interface HxpHeaderConfig {
 @Component({
     selector: 'hxp-workspace-header',
     templateUrl: './header.component.html',
-    imports: [MatDividerModule, HeaderComponent, RouterLink],
+    imports: [MatDividerModule, RouterLink],
 })
 export class HxpWorkspaceHeaderComponent {
     private readonly extensionService = inject(ExtensionService);
