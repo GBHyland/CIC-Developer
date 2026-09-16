@@ -26,7 +26,7 @@ This hands-on lab begins with an existing imported process. You are **not** crea
 ---  
 
 ## ✅ Initial Test
-1. Import the _gb-cui-claim-classStart_ project into Modeler.
+1. Import the _cic-dev-scripting_ project into Modeler and rename the project by adding your training number to it.  _ex.(B12)_.
 2. Reassign the **"display-JSON"** User Tasks to yourself _ex.(TrainB12)_.
 
 Release and deploy the project in **Studio Admin**. Once deployed, test the process and get a feel for what it does.
