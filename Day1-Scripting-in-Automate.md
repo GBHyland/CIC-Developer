@@ -211,8 +211,8 @@ Verify that:
 **Applying Unique Name to Generated Folder and Generate Document Task**
 1. Select the **Create Folder** task.
 2. Change the value of the **Name** attribute to: ```claim-[your initials]-${var_updatedClaimNum}```.
-3. Select the **Generate Document** task.
-4. Change the **Output File Name** input mapping value to: ```claim-[your initials]-${var_updatedClaimNum}```.  
+3. Select both **Generate Document** tasks (one in the manual route and one in the webhook route).
+4. Change the **Output File Name** input mapping values to: ```claim-[your initials]-${var_updatedClaimNum}```.  
 
 > [!TIP]
 > **Expressions and Interpolation**
