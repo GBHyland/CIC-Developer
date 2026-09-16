@@ -80,7 +80,7 @@ export class HxpWorkspaceHeaderComponent {
             this.identityUserService.getCurrentUserInfo().username, 
             {groups: ['Claims Admin']}).subscribe(users => {console.log(users);
                 (users.length > 0) ?
-                this.landingpageURL = '/dashboard': this.landingpageURL = '/portal'
+                this.landingPageURL = '/dashboard': this.landingPageURL = '/portal'
             })
     }
 }
