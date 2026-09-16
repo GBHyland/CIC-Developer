@@ -1,2 +1,0 @@
-// Set the value of customErrorMessage process variable with a custom friendly error message.
-variables.customErrorMessage = "The base Claim folder '/uidev_claims' could not be found. Mike from accounting might have deleted it again. Ensure this directory exists and try again!";

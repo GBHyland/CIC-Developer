@@ -1,2 +1,0 @@
-// assign the Unix timestamp as the claim number for the var_claimNumber process variable
-variables.var_claimNumber = Math.floor(Date.now() / 1000);
