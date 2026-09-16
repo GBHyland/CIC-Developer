@@ -1206,10 +1206,6 @@ Inside each claim card, add another Angular `@for`:
             <div class="document-row">
 
                 <span>
-                    📄
-                </span>
-
-                <span>
                     {{ document.name }}
                 </span>
 
