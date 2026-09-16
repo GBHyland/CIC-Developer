@@ -110,6 +110,29 @@ libs/
 1. Create the `dashboard` directory under _libs_.
 2. Create the 3 files above.
 
+---  
+
+## Add Our Component to the Router
+1. Navigate to this directory: `libs/workspace-hxp/app-shell/src/lib/`
+2. Open the file titled: `experience-workspace-app-shell.routes.ts`
+3. Add the following import:
+```
+import { customDashComponent } from '../../../../dashboard/customDashComponent';
+```
+4. In the **APP_ROUTES** Array, add the following object:
+```
+{
+    path: 'dashboard',
+    component: customDashComponent
+}
+```
+5. Save the file.
+6. In Terminal, start your workspace application:
+```
+npm start workspace-hxp
+```
+7. Once the app is built, visit this address: `http://localhost:4200/#/dashboard`
+8. You should get a blank page; that's expected. Keep the workspace app running for the rest of this lab.
 
 ---
 
