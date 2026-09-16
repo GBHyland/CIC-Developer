@@ -733,6 +733,15 @@ console.log(
     `Found ${claimFolders.length} claim folders.`,
     claimFolders
 );
+
+this.claims = claimFolders.map((folder: any) => ({
+    id: folder.sys_id,
+    name: folder.sys_name,
+    path: folder.sys_path,
+    created: folder.sys_created,
+    modified: folder.sys_modified,
+    documents: []
+}));
 ```
 
 Your `try` block should now contain:
