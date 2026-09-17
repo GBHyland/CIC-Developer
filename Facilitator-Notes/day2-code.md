@@ -799,3 +799,235 @@ export class customDashComponent implements OnInit {
     }
 }
 ```
+
+Dash-Fix:
+```
+/*
+ * Copyright © 2005 - 2021 Alfresco Software, Ltd. All rights reserved.
+ *
+ * License rights for this program may be obtained from Alfresco Software, Ltd.
+ * pursuant to a written agreement and any use of this program without such an
+ * agreement is prohibited.
+ */
+
+import { AppConfigService } from '@alfresco/adf-core';
+import {
+    ContentActionRef,
+    ExtensionService
+} from '@alfresco/adf-extensions';
+
+import {
+    Component,
+    effect,
+    inject,
+    signal
+} from '@angular/core';
+
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatDividerModule } from '@angular/material/divider';
+import { RouterLink } from '@angular/router';
+
+import {
+    IdentityUserService
+} from '@alfresco/adf-process-services-cloud';
+
+import { of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+
+
+interface HxpHeaderConfig {
+    headerColor: string;
+    headerTextColor: string;
+
+    application: {
+        name: string;
+        logo: string;
+        headerImagePath: string;
+    };
+
+    features?: {
+        header?: ContentActionRef[];
+    };
+}
+
+
+@Component({
+    selector: 'hxp-workspace-header',
+    templateUrl: './header.component.html',
+    imports: [
+        MatDividerModule,
+        RouterLink
+    ],
+})
+export class HxpWorkspaceHeaderComponent {
+
+    private readonly extensionService =
+        inject(ExtensionService);
+
+    private readonly appConfigService =
+        inject(AppConfigService);
+
+    private readonly identityUserService =
+        inject(IdentityUserService);
+
+
+    readonly headerTextColor =
+        signal<string>('');
+
+    readonly backgroundColor =
+        signal<string>('');
+
+    readonly backgroundImage =
+        signal<string>('');
+
+    readonly logoPath =
+        signal<string>('');
+
+
+    readonly config =
+        toSignal<HxpHeaderConfig | null>(
+            this.extensionService.setup$.pipe(
+                switchMap(() =>
+                    of<HxpHeaderConfig | null>(
+                        this.appConfigService.config
+                    )
+                )
+            ),
+            {
+                initialValue: null
+            }
+        );
+
+
+    landingPageURL = '/portal';
+
+
+    constructor() {
+
+        /*
+         * Load header configuration.
+         */
+        effect(() => {
+
+            const config = this.config();
+
+            if (!config) {
+                return;
+            }
+
+
+            if (config.headerTextColor) {
+                this.headerTextColor.set(
+                    config.headerTextColor
+                );
+            }
+
+
+            if (config.headerColor) {
+                this.backgroundColor.set(
+                    config.headerColor
+                );
+            }
+
+
+            if (config.application?.headerImagePath) {
+                this.backgroundImage.set(
+                    config.application.headerImagePath
+                );
+            }
+
+
+            if (config.application?.logo) {
+                this.logoPath.set(
+                    config.application.logo
+                );
+            }
+
+        });
+
+
+        /*
+         * Determine the landing page based
+         * on the current user's group.
+         */
+        this.configureLandingPage();
+
+    }
+
+
+    private configureLandingPage(): void {
+
+        const currentUser =
+            this.identityUserService.getCurrentUserInfo();
+
+
+        if (!currentUser?.username) {
+
+            console.warn(
+                'Unable to determine the current user.'
+            );
+
+            this.landingPageURL = '/portal';
+
+            return;
+        }
+
+
+        console.log(
+            'This is the user:',
+            currentUser.firstName,
+            currentUser.lastName
+        );
+
+
+        this.identityUserService.search(
+            currentUser.username,
+            {
+                groups: [
+                    'Account Administrators'
+                ]
+            }
+        ).subscribe({
+
+            next: (users) => {
+
+                console.log(
+                    'Account Administrator search:',
+                    users
+                );
+
+
+                if (users.length > 0) {
+
+                    this.landingPageURL =
+                        '/dashboard';
+
+                } else {
+
+                    this.landingPageURL =
+                        '/portal';
+
+                }
+
+            },
+
+
+            error: (error) => {
+
+                console.error(
+                    'Unable to determine user group:',
+                    error
+                );
+
+                this.landingPageURL =
+                    '/portal';
+
+            }
+
+        });
+
+    }
+
+}
+```
+
