@@ -2242,22 +2242,115 @@ This allows the dashboard UI to respond to repository data rather than requiring
 
 ---
 
-# Challenge
+# Update the Header Component
 
-If time permits, consider how you might extend the dashboard.
+1. Navigate to the directory: `libs/shared-hxp/ui/src/lib/components/header/`
+2. Open the `header.component.ts` file
+3. Add the following import:
+```
+import { IdentityUserService } from '@alfresco/adf-process-services-cloud';
+```
+4. In the export class section, add the following variable declaration:
+```
+landingPageURL = 'portal';
+```
+5. Next, add the following function:
+```
+// load the page based on identity of user
+        console.log("This is the user: "+this.identityUserService.getCurrentUserInfo().firstName+"  "+this.identityUserService.getCurrentUserInfo().lastName);
+        this.identityUserService.search(
+            this.identityUserService.getCurrentUserInfo().username, 
+            {groups: ['Account Administrators']}).subscribe(users => {console.log(users);
+                (users.length > 0) ?
+                this.landingPageURL = '/dashboard': this.landingPageURL = '/portal'
+            })
+```
+6. In the same directory, open the `header.component.html` file.
+7. Replace the entire contents of this file with the following html code:
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9 Second Insurance - Claims Portal</title>
 
-For example:
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
 
-- Make a document filename clickable.
-- Open a document from the repository.
-- Display different icons for PDFs and images.
-- Display the date a claim was created.
-- Sort claims by creation date.
-- Add a search field for claim numbers.
-- Add a document total across all claims.
-- Refresh the dashboard without reloading the page.
+  .header {
+    background-color: #0B3D91; /* Dark blue */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
 
-> These features are not required to complete the lab. They demonstrate how the same repository data can support increasingly sophisticated Custom UI experiences.
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0B3D91;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .admin-btn {
+    background-color: #ffffff;
+    color: #0B3D91;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .admin-btn:hover {
+    background-color: #e6eaf2;
+  }
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <!-- Replace this with an <img src="your-logo.png"> if you have a real logo -->
+    <div class="logo">INS</div>
+    <div class="title">9 Second Insurance - Claims Portal</div>
+  </div>
+
+  <button class="admin-btn" role="link" [routerLink]="landingPageURL">Admin Portal</button>
+</header>
+
+</body>
+</html>
+```
+
+**TEST: View your app in the browser**
+The new header should load from the default page in the UI. Selecting the **Admin Portal** button should use the logic we placed into the `header.component.ts` file, checking to see if the signed in user belongs to the correct group and navigating the user to the correct page; i.e.: Admins should go to the Admin page, while anyone else should be re-directed to the claims portal page.
 
 ---
 
