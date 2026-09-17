@@ -9,7 +9,7 @@ Rather than displaying hard-coded values, the dashboard will query the repositor
 By the end of the lab, your dashboard will:
 
 - Connect to the HxP Content Repository using an existing Angular service.
-- Query claim folders using HXQL.
+he- Query claim folders using HXQL.
 - Determine the total number of claims.
 - Retrieve the documents associated with each claim.
 - Store repository results in TypeScript objects.
@@ -2250,11 +2250,15 @@ This allows the dashboard UI to respond to repository data rather than requiring
 ```
 import { IdentityUserService } from '@alfresco/adf-process-services-cloud';
 ```
-4. In the export class section, add the following variable declaration:
+4. In the export class section, add the following variable declaration immediately before the constructor:
 ```
 landingPageURL = 'portal';
 ```
-5. Next, add the following function:
+5. Inside the constructor parenthesis (), add the following parameter:
+```
+private identityUserService: IdentityUserService
+```
+6. Next, add the following function **after** the `effect()` function:
 ```
 // load the page based on identity of user
         console.log("This is the user: "+this.identityUserService.getCurrentUserInfo().firstName+"  "+this.identityUserService.getCurrentUserInfo().lastName);
@@ -2265,8 +2269,8 @@ landingPageURL = 'portal';
                 this.landingPageURL = '/dashboard': this.landingPageURL = '/portal'
             })
 ```
-6. In the same directory, open the `header.component.html` file.
-7. Replace the entire contents of this file with the following html code:
+7. In the same directory, open the `header.component.html` file.
+8. Replace the entire contents of this file with the following html code:
 ```
 <!DOCTYPE html>
 <html lang="en">
