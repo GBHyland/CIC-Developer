@@ -2249,16 +2249,18 @@ This allows the dashboard UI to respond to repository data rather than requiring
 3. Add the following import:
 ```
 import { IdentityUserService } from '@alfresco/adf-process-services-cloud';
+import { RouterLink } from '@angular/router';
 ```
-4. In the export class section, add the following variable declaration immediately before the constructor:
+4. In the `@Component` injection, add `RouterLink` to the _imports_ array and remove `HeaderComponent`.
+5. In the export class section, add the following variable declaration immediately before the constructor:
 ```
 landingPageURL = 'portal';
 ```
-5. Inside the constructor parenthesis (), add the following parameter:
+6. Inside the constructor parenthesis (), add the following parameter:
 ```
 private identityUserService: IdentityUserService
 ```
-6. Next, add the following function **after** the `effect()` function:
+7. Next, add the following function **after** the `effect()` function:
 ```
 // load the page based on identity of user
         console.log("This is the user: "+this.identityUserService.getCurrentUserInfo().firstName+"  "+this.identityUserService.getCurrentUserInfo().lastName);
@@ -2269,8 +2271,8 @@ private identityUserService: IdentityUserService
                 this.landingPageURL = '/dashboard': this.landingPageURL = '/portal'
             })
 ```
-7. In the same directory, open the `header.component.html` file.
-8. Replace the entire contents of this file with the following html code:
+8. In the same directory, open the `header.component.html` file.
+9. Replace the entire contents of this file with the following html code:
 ```
 <!DOCTYPE html>
 <html lang="en">
