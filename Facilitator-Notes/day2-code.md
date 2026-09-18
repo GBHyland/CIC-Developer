@@ -800,7 +800,7 @@ export class customDashComponent implements OnInit {
 }
 ```
 
-Dash-Fix:
+**header.component.ts**
 ```
 /*
  * Copyright © 2005 - 2021 Alfresco Software, Ltd. All rights reserved.
@@ -811,223 +811,164 @@ Dash-Fix:
  */
 
 import { AppConfigService } from '@alfresco/adf-core';
-import {
-    ContentActionRef,
-    ExtensionService
-} from '@alfresco/adf-extensions';
-
-import {
-    Component,
-    effect,
-    inject,
-    signal
-} from '@angular/core';
-
+import { ContentActionRef, ExtensionService } from '@alfresco/adf-extensions';
+import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDividerModule } from '@angular/material/divider';
-import { RouterLink } from '@angular/router';
-
-import {
-    IdentityUserService
-} from '@alfresco/adf-process-services-cloud';
-
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-
+import { RouterLink } from '@angular/router';
+import { IdentityUserService } from '@alfresco/adf-process-services-cloud';
 
 interface HxpHeaderConfig {
     headerColor: string;
     headerTextColor: string;
-
     application: {
         name: string;
         logo: string;
         headerImagePath: string;
     };
-
     features?: {
         header?: ContentActionRef[];
     };
 }
 
-
 @Component({
     selector: 'hxp-workspace-header',
     templateUrl: './header.component.html',
-    imports: [
-        MatDividerModule,
-        RouterLink
-    ],
+    imports: [MatDividerModule, RouterLink],
 })
 export class HxpWorkspaceHeaderComponent {
+    private readonly extensionService = inject(ExtensionService);
+    private readonly appConfigService = inject(AppConfigService);
 
-    private readonly extensionService =
-        inject(ExtensionService);
+    readonly headerTextColor = signal<string>('');
+    readonly backgroundColor = signal<string>('');
+    readonly backgroundImage = signal<string>('');
+    readonly logoPath = signal<string>('');
 
-    private readonly appConfigService =
-        inject(AppConfigService);
+    readonly config = toSignal<HxpHeaderConfig | null>(
+        this.extensionService.setup$.pipe(
+            switchMap(() => of<HxpHeaderConfig | null>(this.appConfigService.config))
+        ),
+        { initialValue: null }
+    );
 
-    private readonly identityUserService =
-        inject(IdentityUserService);
+    landingPageURL = 'portal';
 
-
-    readonly headerTextColor =
-        signal<string>('');
-
-    readonly backgroundColor =
-        signal<string>('');
-
-    readonly backgroundImage =
-        signal<string>('');
-
-    readonly logoPath =
-        signal<string>('');
-
-
-    readonly config =
-        toSignal<HxpHeaderConfig | null>(
-            this.extensionService.setup$.pipe(
-                switchMap(() =>
-                    of<HxpHeaderConfig | null>(
-                        this.appConfigService.config
-                    )
-                )
-            ),
-            {
-                initialValue: null
-            }
-        );
-
-
-    landingPageURL = '/portal';
-
-
-    constructor() {
-
-        /*
-         * Load header configuration.
-         */
+    constructor(private identityUserService: IdentityUserService) {
         effect(() => {
-
             const config = this.config();
-
-            if (!config) {
-                return;
-            }
-
-
-            if (config.headerTextColor) {
-                this.headerTextColor.set(
-                    config.headerTextColor
-                );
-            }
-
-
-            if (config.headerColor) {
-                this.backgroundColor.set(
-                    config.headerColor
-                );
-            }
-
-
-            if (config.application?.headerImagePath) {
-                this.backgroundImage.set(
-                    config.application.headerImagePath
-                );
-            }
-
-
-            if (config.application?.logo) {
-                this.logoPath.set(
-                    config.application.logo
-                );
-            }
-
-        });
-
-
-        /*
-         * Determine the landing page based
-         * on the current user's group.
-         */
-        this.configureLandingPage();
-
-    }
-
-
-    private configureLandingPage(): void {
-
-        const currentUser =
-            this.identityUserService.getCurrentUserInfo();
-
-
-        if (!currentUser?.username) {
-
-            console.warn(
-                'Unable to determine the current user.'
-            );
-
-            this.landingPageURL = '/portal';
-
-            return;
-        }
-
-
-        console.log(
-            'This is the user:',
-            currentUser.firstName,
-            currentUser.lastName
-        );
-
-
-        this.identityUserService.search(
-            currentUser.username,
-            {
-                groups: [
-                    'Account Administrators'
-                ]
-            }
-        ).subscribe({
-
-            next: (users) => {
-
-                console.log(
-                    'Account Administrator search:',
-                    users
-                );
-
-
-                if (users.length > 0) {
-
-                    this.landingPageURL =
-                        '/dashboard';
-
-                } else {
-
-                    this.landingPageURL =
-                        '/portal';
-
+            if (config) {
+                if (config.headerTextColor) {
+                    this.headerTextColor.set(config.headerTextColor);
                 }
-
-            },
-
-
-            error: (error) => {
-
-                console.error(
-                    'Unable to determine user group:',
-                    error
-                );
-
-                this.landingPageURL =
-                    '/portal';
-
+                if (config.headerColor) {
+                    this.backgroundColor.set(config.headerColor);
+                }
+                if (config.application.headerImagePath) {
+                    this.backgroundImage.set(config.application.headerImagePath);
+                }
+                if (config.application.logo) {
+                    this.logoPath.set(config.application.logo);
+                }
             }
-
         });
 
+        // load the page based on identity of user
+        console.log("This is the user: "+this.identityUserService.getCurrentUserInfo().firstName+"  "+this.identityUserService.getCurrentUserInfo().lastName);
+        this.identityUserService.search(
+            this.identityUserService.getCurrentUserInfo().username, 
+            {groups: ['Account Administrators']}).subscribe(users => {console.log(users);
+                (users.length > 0) ?
+                this.landingPageURL = '/dashboard': this.landingPageURL = '/portal'
+            })
     }
-
 }
+
 ```
+
+**header.component.html**
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9 Second Insurance - Claims Portal</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .header {
+    background-color: #0B3D91; /* Dark blue */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0B3D91;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .admin-btn {
+    background-color: #ffffff;
+    color: #0B3D91;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .admin-btn:hover {
+    background-color: #e6eaf2;
+  }
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <!-- Replace this with an <img src="your-logo.png"> if you have a real logo -->
+    <div class="logo">INS</div>
+    <div class="title">9 Second Insurance - Claims Portal</div>
+  </div>
+
+  <button class="admin-btn" role="link" [routerLink]="landingPageURL">Admin Portal</button>
+</header>
+
+</body>
+</html>
+```
+
 
