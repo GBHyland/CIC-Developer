@@ -2,10 +2,10 @@
 
 ## Automate Day 1
 
-[Day 1: Scripting in Automate](/Day1-Scripting-in-Automate.md)
+[Day 1: Scripting in Automate](/Guides/Day1-Scripting-in-Automate.md)
 
 ## Automate Day 2
 
-[Pre-configuration](/Automate-Custom-UI.md)
+[Pre-configuration](/Guides/Automate-Custom-UI.md)
 
-[Day 2: Create Custom UI](/Day2-Create-Custom-UI.md)
+[Day 2: Create Custom UI](/Guides/Day2-Create-Custom-UI.md)
