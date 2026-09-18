@@ -169,7 +169,7 @@ npm start workspace-hxp
 > [!IMPORTANT]
 > **Troubleshooting:**
 >
-> Ensure you created the files in the correct directory: `libs/plugins/yourpluginname/src/lib/pages/nine-si`
+> Ensure you created the files in the correct directory: `libs/plugins/yourpluginname/src/lib/pages/nine-si`.  
 > You should have the following files: `nine-si-component.html`, `nine-si.component.ts`, `nine-si-menu-item.component.ts`, `nine-si-menu-item.component.html`.
 
 
