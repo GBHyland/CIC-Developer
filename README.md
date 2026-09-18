@@ -10,4 +10,4 @@
 
 [Day 2 - Session 1: Create Custom UI](/Guides/Day2-Session1-Create-Custom-UI.md)
 
-[Day 2 - Session 2: Create Custom UI](/Guides/Day2-Session2-Claims-Dashboard.md)
+[Day 2 - Session 2: Create Admin Dashboard](/Guides/Day2-Session2-Claims-Dashboard.md)
