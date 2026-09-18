@@ -6,6 +6,6 @@
 
 ## Automate Day 2
 
-[Pre-configuration](/Guides/Automate-Custom-UI.md)
+[Pre-configuration](/Custom-UI-Prereqs.md)
 
 [Day 2: Create Custom UI](/Guides/Day2-Create-Custom-UI.md)
