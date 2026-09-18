@@ -176,7 +176,8 @@ npm start workspace-hxp
 ---
 
 ### Customizing Your Page
-1. If your UI is running, stop the UI by pressing CTRL+C in the Terminal window. Next, you'll add custom HTML code to create custom page design:
+1. Since this HTML code loads a an image, we need to create the proper directory so the image will exist at run-time. In finder/explorer, navigate to the directory at the following path: ```libs/plugins/yourpluginname/src/lib/pages/nine-si``` and create a new folder titled ```images```. Place the image file from this github found [here](./images-for-ui/) into the _images_ folder. 
+2. If your UI is running, stop the UI by pressing CTRL+C in the Terminal window. Next, you'll add custom HTML code to create custom page design:
    - In the ```nine-si-component.html``` replace the contents of this file with the following code. **NOTE:** You MUST replace the ```yourprocessname``` in the "a href" URL in the code below with the name of the process in your application. (If you want to use your own html code then feel free to use that instead)
 ```
 <!DOCTYPE html>
@@ -434,7 +435,7 @@ npm start workspace-hxp
 </html>
 
 ```
-2. Since this HTML code loads a few images, we need to create the proper directory so they will exist at run-time. In finder/explorer, navigate to the folder at the following path: ```libs/plugins/yourpluginname/src/lib/pages/nine-si``` and create a new folder titled ```images```. Place the image file from this github found [here](./images-for-ui/) into the _images_ folder. 
+
 3. Change the name of the button that launches your page: 
    - Open the file titled ```nine-si-menu-item.component.html``` found at the directory: ```libs/plugins/yourpluginname/src/lib/pages/nine-si```. 
    - Paste the following code over the entire content of this file:
