@@ -266,7 +266,6 @@ npm start workspace-hxp
     }
 }
 
-
 // --------------------------------------------
 // Start Claim Button
 // --------------------------------------------
@@ -304,24 +303,6 @@ npm start workspace-hxp
         transform: translateY(1px);
     }
 }
-
-
-// --------------------------------------------
-// Footer
-// --------------------------------------------
-
-.site-footer {
-    padding: 16px 40px;
-
-    background-color: #004080;
-    color: #ffffff;
-
-    border-top: 3px solid #0073e6;
-
-    text-align: center;
-    font-size: 0.9em;
-}
-
 
 // --------------------------------------------
 // Responsive
