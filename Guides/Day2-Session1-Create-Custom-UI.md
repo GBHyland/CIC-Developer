@@ -87,6 +87,9 @@ This portion will show you how to create a custom UI within your application, do
 
 ---
 
+> [!NOTE]
+> If your application is still running, stop it before this step by pressing CTRL+C in the Terminal window.
+
 ### Creating a Plugin and a Page
 **Summary:** 
 A Plugin is first necessary in order to create a Page, so don't skip step 1. A Page loads into the main content window of the UI. This guide will show you how to create and customize your own page and add a button for navigation.
@@ -108,11 +111,13 @@ npx nx generate @hyland/extend:page --pluginName ninesi --pageName nine-si
 ```
 npm start workspace-hxp
 ```
-   - Verify your page in the UI: A button should now appear at the bottom of the left navigation panel indicating your page name. Selecting the button will load the page into the main content window with a message that page is working. 
-4. If your page is working, navigate back to terminal and stop the instance using CTRL+C.
-5. The plugin generator created new files for this plugin, which can be found at the following directory. Open finder/explorer and navigate to this directory: ```libs/plugins/yourpluginname/src/lib/pages/nine-si```.
+   - Verify your page in the UI: A button should now appear at the bottom of the left navigation panel indicating your page name. Selecting the button will load the page into the main content window with a message that page is working.
+
+
+### Add the HTML and CSS files for your Plugin and Page.
+1. The plugin generator created new files for this plugin, which can be found at the following directory. Open finder/explorer and navigate to this directory: ```libs/plugins/yourpluginname/src/lib/pages/nine-si```.
    - You should see a few files here: ```nine-si-menu-item.components.ts```, ```nine-si-compnents.ts```, and ```nine-si-module.ts```.
-6. In order to create a custom page you'll need to create a few new files in this directory and paste some html code into those files. I found it easiest to use Visual Studio to create a these new files and save them in the directory mentioned above. To start creating the files, follow these steps in VS Code:
+2. In order to create a custom page you'll need to create a few new files in this directory and paste some html code into those files. I found it easiest to use Visual Studio to create a these new files and save them in the directory mentioned above. To start creating the files, follow these steps in VS Code:
    - Create a new file titled ```nine-si-menu-item.component.scss``` and save it in the directory you have opened from step 5: ```libs/plugins/yourpluginname/src/lib/pages/nine-si```. Leave the contents of this file empty and close it. 
    - Create a new file titled ```nine-si-menu-item.component.html``` and save it in the directory you have opened from step 5: ```libs/plugins/yourpluginname/src/lib/pages/nine-si```.
    - Open the file in that same directory that is titled: ```nine-si-menu-item.component.ts``` in Visual Studio. In this file, you'll notice a string of HTML code that is surrounded by a single quote (literal string) which is the value of the "template" object. Copy the code between the single quotes, **do not copy the quotes**, and paste the code into the newly created .html file from the step above. (See this screenshot as an example of what to copy).
@@ -155,11 +160,11 @@ import { Router } from '@angular/router';
    - Refer to the screenshot below as to what your file should look like (remembering to replace my page name with yours):
 ![alt text](images/replace-componentts.jpeg "Your code should look like this.")
 
-7. Open the file you created earlier titled ```nine-si-component.html``` and add the following code:  
+3. Open the file you created earlier titled ```nine-si-component.html``` and add the following code:  
 ```
 <p>This is working!</p>
 ```
-8. All manual file additions and edits are done for core functionality and you may now test the application.
+4. All manual file additions and edits are done for core functionality and you may now test the application.
    - Ensuring all edited files are saved, go back to Terminal and launch the UI using the command: 
 ```
 npm start workspace-hxp
@@ -177,266 +182,183 @@ npm start workspace-hxp
 
 ### Customizing Your Page
 1. Since this HTML code loads image(s), we need to create the proper directory so the image(s) will exist at run-time. In finder/explorer, navigate to the directory at the following path: ```libs/plugins/yourpluginname/src/lib/pages/nine-si``` and create a new folder titled ```images```. Place the image file from this github found [here](./images-for-ui/) into the _images_ folder. 
-2. If your UI is running, stop the UI by pressing CTRL+C in the Terminal window. Next, you'll add custom HTML code to create custom page design:
-   - In the ```nine-si-component.html``` replace the contents of this file with the following code. **NOTE:** You MUST replace the ```yourprocessname``` in the "a href" URL in the code below with the name of the process in your application. (If you want to use your own html code then feel free to use that instead)
+2. Next, you'll add custom HTML code to create custom page design:
+   - In the ```nine-si-component.html``` replace the contents of this file with the following code. **NOTE:** You MUST replace the ```claim-process``` in the "a href" URL in the code below with the name of the process in your application. (If you want to use your own html code then feel free to use that instead)
 ```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>9 Second Insurance - Home Claims</title>
-<style>
-    /* General styles */    
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #e6f0ff;
-        color: #333;
-    }
+<!-- Hero Banner -->
+<section class="hero">
 
-    header {
-        background-color: #004080;
-        color: white;
-        padding: 20px 40px;
-    }
+    <div class="hero-overlay">
 
-    header h1 {
-        margin: 0;
-        font-size: 2em;
-    }
+        <h2>
+            Welcome to 9 Second Insurance
+        </h2>
 
-    header p {
-        margin: 5px 0 0 0;
-        font-size: 1.2em;
-    }
+        <a
+            class="cta-btn"
+            href="#/start-process-cloud?process=claim-process">
+            Start a Claim
+        </a>
 
-    nav {
-        background-color: #0073e6;
-        padding: 10px 40px;
-    }
-
-    nav a {
-        color: white;
-        margin-right: 20px;
-        text-decoration: none;
-        font-weight: bold;
-    }
-
-    nav a:hover {
-        text-decoration: underline;
-    }
-
-    /* Banner */
-    #banner {
-        position: relative;
-        width: 100%;
-        height: 800px;
-        background: url('images/fam-home-2.jpg') center/cover no-repeat;
-    }
-
-    #banner .overlay {
-        position: absolute;
-        top:0; left:0;
-        width: 100%; height:100%;
-        background-color: rgba(0,0,0,0.4);
-        display:flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color:white;
-        text-align:center;
-    }
-
-    #banner h2 {
-        font-size: 3em;
-        margin:0;
-    }
-
-    #banner p {
-        font-size: 1.5em;
-        margin-top:10px;
-    }
-
-    main {
-        padding: 40px;
-        max-width: 800px;
-        margin: auto;
-        background-color: #f2f9ff;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        margin-top: -50px;
-        position: relative;
-        z-index: 1;
-    }
-
-    #processForm {
-        display: none;
-        margin-top: 20px;
-    }
-
-    label {
-        display:block;
-        margin-top:15px;
-    }
-
-    input, select, textarea, button {
-        margin-top:5px;
-        padding:10px;
-        width:100%;
-        box-sizing:border-box;
-        border-radius:5px;
-        border:1px solid #ccc;
-    }
-
-    textarea {
-        resize: vertical;
-    }
-
-    button {
-        background-color:#004080;
-        color:white;
-        font-weight:bold;
-        cursor:pointer;
-        margin-top:20px;
-    }
-
-    button:hover {
-        background-color:#0073e6;
-    }
-
-    #successMessage {
-        display:none;
-        text-align:center;
-        margin-top:30px;
-        position: relative;
-        height: 220px;
-    }
-
-    #runningCharacter {
-        position: absolute;
-        bottom: 0;
-        left: -200px;
-        width: 150px;
-        height: auto;
-    }
-
-    /* --- brand/logo layout --- */
-    header { display: flex; align-items: center; gap: 12px; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand .logo { width: 44px; height: 44px; flex: 0 0 44px; }
-    @media (max-width: 480px){
-        .brand .logo { width: 36px; height: 36px; }
-        header h1 { font-size: 1.6em; }
-    }
-
-    
-    /* --- footer styling --- */
-    footer {
-        background-color: #004080;       /* matches header */
-        color: #ffffff;
-        border-top: 3px solid #0073e6;   /* matches nav accent */
-        text-align: center;
-        padding: 16px 40px;
-        font-size: 0.9em;
-    }
-
-    /* Banner CTA button */
-    #banner .cta-btn {
-        display: inline-block;
-        background-color: #0073e6;  /* matches nav accent */
-        color: #ffffff;
-        border: 2px solid #ffffff;  /* pops on dark overlay */
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 1.1em;
-        text-decoration: none;
-        margin-top: 16px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-        transition: background-color .15s ease, transform .05s ease;
-    }
-    #banner .cta-btn:hover,
-    #banner .cta-btn:focus {
-        background-color: #0059b3;  /* darker hover */
-        outline: 3px solid rgba(230,240,255,0.35);
-    }
-    #banner .cta-btn:active {
-        transform: translateY(1px);
-    }
-
-</style>
-</head>
-<body>
-
-<header>
-  <div class="brand">
-    <!-- Inline SVG logo: 9SI -->
-    <svg class="logo" viewBox="0 0 64 64" role="img" aria-label="9SI logo"
-         xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <!-- Accent gradient that matches #0073e6 family -->
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#0073e6"/>
-          <stop offset="1" stop-color="#0059b3"/>
-        </linearGradient>
-      </defs>
-
-      <!-- Rounded square badge with a thin white keyline to pop on #004080 -->
-      <rect x="1.5" y="1.5" width="61" height="61" rx="12"
-            fill="url(#g)" stroke="#ffffff" stroke-width="3"/>
-
-      <!-- “Speed” accent bars (subtle) -->
-      <g opacity="0.85" fill="#ffffff">
-        <rect x="7.5" y="18" width="14" height="3" rx="1.5"/>
-        <rect x="7.5" y="25" width="18" height="3" rx="1.5"/>
-        <rect x="7.5" y="32" width="12" height="3" rx="1.5"/>
-      </g>
-
-      <!-- 9SI letters -->
-      <text x="50%" y="52%" text-anchor="middle"
-            font-family="Arial, Helvetica, sans-serif"
-            font-weight="800" font-size="28" fill="#ffffff" dy="9">9SI</text>
-    </svg>
-
-    <h1 style="margin:0; padding: 6px 0 0;">9 Second Insurance</h1>
-  </div>
-</header>
-
-<!--
-<nav>
-    <a href="#link1">Get Insured Now!</a>
-    <a href="#link2">About Us</a>
-    <a href="#link3">Claim Status</a>
-</nav>
--->
-
-<section id="banner">
-    <div class="overlay">
-        <h2>Welcome to 9 Second Insurance</h2>
-        <a class="cta-btn" href="http://localhost:4200/#/start-process-cloud?process=claim-process" aria-label="Start a Claim">Start a Claim</a>
     </div>
+
 </section>
 
+```
 
-<script>
-  // Make the "Submit a Claim" button navigate to your ADF start-process URL
-  document.getElementById("showFormBtn").addEventListener("click", function () {
-    window.location.href = "http://localhost:4200/#/start-process-cloud?process=claim-process";
-  });
-</script>
+3. Open the `nine-si-component.scss` file you created earlier if not already open. Paste the following code into this file.
+```
+// ============================================
+// 9 Second Insurance
+// Home Page Component
+// ============================================
 
-<footer>
-  &copy;2025 Hyland Software, Inc. and its affiliates. All rights reserved.
-</footer>
 
-</body>
-</html>
+// --------------------------------------------
+// Component
+// --------------------------------------------
+
+:host {
+    display: block;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #e6f0ff;
+    color: #333;
+}
+
+
+// --------------------------------------------
+// Hero Banner
+// --------------------------------------------
+
+.hero {
+    position: relative;
+
+    width: 100%;
+    height: 800px;
+
+    background:
+        url('images/fam-home-2.jpg')
+        center / cover
+        no-repeat;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+
+    text-align: center;
+
+    h2 {
+        margin: 0;
+
+        font-size: 3em;
+    }
+}
+
+
+// --------------------------------------------
+// Start Claim Button
+// --------------------------------------------
+
+.cta-btn {
+    display: inline-block;
+
+    margin-top: 16px;
+    padding: 12px 24px;
+
+    background-color: #0073e6;
+    color: #ffffff;
+
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+
+    font-size: 1.1em;
+    font-weight: bold;
+
+    text-decoration: none;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.05s ease;
+
+    &:hover,
+    &:focus {
+        background-color: #0059b3;
+        outline: 3px solid rgba(230, 240, 255, 0.35);
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+
+// --------------------------------------------
+// Footer
+// --------------------------------------------
+
+.site-footer {
+    padding: 16px 40px;
+
+    background-color: #004080;
+    color: #ffffff;
+
+    border-top: 3px solid #0073e6;
+
+    text-align: center;
+    font-size: 0.9em;
+}
+
+
+// --------------------------------------------
+// Responsive
+// --------------------------------------------
+
+@media (max-width: 480px) {
+
+    .site-header {
+        padding: 16px 20px;
+    }
+
+    .logo {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .brand h1 {
+        font-size: 1.6em;
+    }
+
+    .hero {
+        height: 600px;
+    }
+
+    .hero-overlay h2 {
+        font-size: 2.2em;
+    }
+
+    .site-footer {
+        padding: 16px 20px;
+    }
+}
 
 ```
 
-3. Change the name of the button that launches your page: 
+4. Change the name of the button that launches your page: 
    - Open the file titled ```nine-si-menu-item.component.html``` found at the directory: ```libs/plugins/yourpluginname/src/lib/pages/nine-si```. 
    - Paste the following code over the entire content of this file:
 ```
@@ -467,11 +389,8 @@ npm start workspace-hxp
     </button>
 ```  
 
-4. Ensuring all edited files are saved, return to Terminal and launch the application once again using the command:
- ```
- npm start workspace-hxp
- ```  
-- Once the page loads, selecting your page button should now load your html page within the content pane showing the 9 Second Insurance claims portal site (or whatever HTML code you used)
+- Once the page updates, selecting your page button should now load your html page within the content pane showing the 9 Second Insurance claims portal site (or whatever HTML code you used)
+- You should also ensure that the 'Start a Claim' button launches the claim start page showing the correct process to start.
 
 --- 
 
@@ -489,7 +408,7 @@ To:
 ---  
 
 ### Add a Route to our Claims Portal
-1. Open the file called: ```experience-workspace-app-shell.routes.ts``` at the directory: _libs/workspace-hxp/app-shell/src/lib_
+1. Open the file: ```experience-workspace-app-shell.routes.ts``` at the directory: _libs/workspace-hxp/app-shell/src/lib_
 2. Add the following import to the file:
 ```
 import { NineSiComponent } from 'libs/plugins/ninesi/src/lib/pages/nine-si/nine-si.component';
