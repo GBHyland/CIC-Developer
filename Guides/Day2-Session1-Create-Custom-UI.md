@@ -426,6 +426,8 @@ import { HxpWorkspaceHeaderComponent } from '../shared-hxp/ui/src/lib/components
     standalone: true,
 })
 ```
+> [!NOTE]
+> This is the portion of the typescript code that tells the Angular ecosystem that this should be treated as a component.
 
 3. Add the class export below the decorator:
 ```
