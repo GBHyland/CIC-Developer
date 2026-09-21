@@ -636,7 +636,7 @@ import { PortalComponent } from '../../../../portal/portal.component';
 
 ### Pause and Reflect
 In this lab we've covered **two** methods of creating a component: 
-1. **Using the nx generator to generate a plugin component and a page.**
+1. **Using the nx generator to generate a plugin and page components.**
    - The Nx generator automates much of the setup for you. It creates the required component files, places them in the expected project structure, and generates the supporting configuration needed to expose the component as a page within the application.  
 3. **Manually creating a component.**
    - A component can also be created by manually adding its TypeScript, HTML, and SCSS files and configuring the @Component decorator. This approach gives you more direct control and helps you understand how the individual pieces of an Angular component work together.
