@@ -165,11 +165,8 @@ import { Router } from '@angular/router';
 <p>This is working!</p>
 ```
 4. All manual file additions and edits are done for core functionality and you may now test the application.
-   - Ensuring all edited files are saved, go back to Terminal and launch the UI using the command: 
-```
-npm start workspace-hxp
-```
-   - When the UI loads, click on the button that appears (your page name) below the navigation on the left-side panel to load your page. You should see the message in the main content pane: ```This is working!```.
+   - Ensure all edited files are saved.
+   - When the UI reloads, click on the button that appears (your page name) below the navigation on the left-side panel to load your page. You should see the message in the main content pane: ```This is working!```.
 
 > [!IMPORTANT]
 > **Troubleshooting:**
