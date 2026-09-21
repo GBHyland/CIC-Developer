@@ -387,25 +387,245 @@ To:
 
 ---  
 
+### Manual Component Creation
+Next, we'll cover the process on how to create a component manually and register it within the Angular ecosystem.
+
+**Create the Component files**
+1. Navigate to the directory: `/libs`.
+2. Create a new folder here titled: `portal`
+3. Within the directory: `/libs/portal`, create the following files:
+   - `portal.component.ts`
+   - `portal.component.html`
+   - `portal.component.scss`
+
+**Fill out the _portal.component.ts_ file**
+1. In the _portal.component.ts_ file, add the following imports:
+```
+// we need the component libraries, since this should act as a component
+import { Component } from '@angular/core';
+// Translations libraries for future use
+import { TranslateModule } from '@ngx-translate/core';
+// import the router libraries so we can inject the Router (navigate to this page)
+import { Router } from '@angular/router';
+// Import the HxpWorkspaceHeaderComponent so we we visit this page we have a header
+import { HxpWorkspaceHeaderComponent } from '../shared-hxp/ui/src/lib/components/header/header.component';
+```
+
+2. Add the component decorator below the imports:
+```
+// provides Angular with metadata directing the class below it to behave as a component
+@Component({
+    templateUrl: './portal.component.html',
+    styleUrls: ['./portal.component.scss'],
+    imports: [TranslateModule, HxpWorkspaceHeaderComponent],
+    standalone: true,
+})
+```
+
+3. Add the class export below the decorator:
+```
+export class PortalComponent {
+    // inject the router
+    constructor(
+        private router: Router,
+    ) {}
+
+    // tell the router to navigate to this page using the 'portal' entry found in the ROUTES_ARRAY in the routes file
+    navigateToPage(): void {
+        void this.router.navigate(['/portal']);
+    }
+}
+```
+
+4. Open the _portal.component.html_ file.
+5. Paste in this HTML:
+```
+<hxp-workspace-header></hxp-workspace-header>
+<!-- Hero Banner -->
+<section class="hero">
+
+    <div class="hero-overlay">
+
+        <h2>
+            Welcome to 9 Second Insurance
+        </h2>
+
+        <a
+            class="cta-btn"
+            href="#/start-process-cloud?process=claim-process">
+            Start a Claim
+        </a>
+
+    </div>
+
+</section>
+
+```
+> [!NOTE]
+> You'll notice this code is similar to the _nine-si_ html with one addition: the `<hxp-workspace-header></hxp-workspace-header>` tag.
+> When acting as a full page, this will component will show the header component at top above our code.
+
+6. In the `libs/portal` directory, create a new folder called: `images`.
+7. Navigate to [this page](./images-for-ui/home-fam.jpeg) in the github and download the image titled: `home-fam.jpeg`
+8. Add this image to the _images_ folder you created in step 6.
+9. Open the _portal.component.scss_ file and add the following CSS code:
+```
+// ============================================
+// 9 Second Insurance
+// Home Page Component
+// ============================================
+
+
+// --------------------------------------------
+// Component
+// --------------------------------------------
+
+:host {
+    display: block;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #e6f0ff;
+    color: #333;
+}
+
+
+// --------------------------------------------
+// Hero Banner
+// --------------------------------------------
+
+.hero {
+    position: relative;
+
+    width: 100%;
+    height: 800px;
+
+    background:
+        url('images/home-fam.jpeg')
+        center / cover
+        no-repeat;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+
+    text-align: center;
+
+    h2 {
+        margin: 0;
+
+        font-size: 3em;
+    }
+}
+
+
+// --------------------------------------------
+// Start Claim Button
+// --------------------------------------------
+
+.cta-btn {
+    display: inline-block;
+
+    margin-top: 16px;
+    padding: 12px 24px;
+
+    background-color: #0073e6;
+    color: #ffffff;
+
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+
+    font-size: 1.1em;
+    font-weight: bold;
+
+    text-decoration: none;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.05s ease;
+
+    &:hover,
+    &:focus {
+        background-color: #0059b3;
+        outline: 3px solid rgba(230, 240, 255, 0.35);
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+
+// --------------------------------------------
+// Responsive
+// --------------------------------------------
+
+@media (max-width: 480px) {
+
+    .site-header {
+        padding: 16px 20px;
+    }
+
+    .logo {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .brand h1 {
+        font-size: 1.6em;
+    }
+
+    .hero {
+        height: 600px;
+    }
+
+    .hero-overlay h2 {
+        font-size: 2.2em;
+    }
+
+    .site-footer {
+        padding: 16px 20px;
+    }
+}
+
+```
+
+10. Continue below to add your new **portal component** to the routes file.
+
+---  
+
+
 ### Add a Route to our Claims Portal
 1. Open the file: ```experience-workspace-app-shell.routes.ts``` at the directory: _libs/workspace-hxp/app-shell/src/lib_
 2. Add the following import to the file:
 ```
-import { NineSiComponent } from 'libs/plugins/ninesi/src/lib/pages/nine-si/nine-si.component';
+import { PortalComponent } from '../../../../portal/portal.component';
 ```  
 3. Add the following route to the ```APP_ROUTES``` array:
 ```
 {
     path: 'portal',
-    component: NineSiComponent
+    component: PortalComponent
 },
 ```   
-4. Save the file.
-5. Run the application:
-```
-npm start workspace-hxp
-```
-6. In your UI navigate to the url: ```http://localhost:4200/#/portal```
+4. Save all edited files.
+5. View and test your application in the browser:
+   - You can view your portal page at the following url: `http://localhost:4200/#/portal`.
+   - You should see a portal page that looks similar to the cli-generated _nine-si_ page, which will include our Angular site header component.
+
 
 ---  
 
