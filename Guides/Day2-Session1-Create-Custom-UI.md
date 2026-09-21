@@ -634,36 +634,22 @@ import { PortalComponent } from '../../../../portal/portal.component';
 
 ---  
 
-### Building and Uploading your Custom UI to Automate
-**Summary:** 
-Now that you have a local developed custom UI, you'll need to build it into a package and upload it to your Custom-UI configuration within your process in Automate in order for your intended audience to see it.
+### Pause and Reflect
+In this lab we've covered **two** methods of creating a component: 
+1. **Using the nx generator to generate a plugin component and a page.**
+   - The Nx generator automates much of the setup for you. It creates the required component files, places them in the expected project structure, and generates the supporting configuration needed to expose the component as a page within the application.  
+3. **Manually creating a component.**
+   - A component can also be created by manually adding its TypeScript, HTML, and SCSS files and configuring the @Component decorator. This approach gives you more direct control and helps you understand how the individual pieces of an Angular component work together.
 
-**Update the Pack-Build Command**
-1. Open the file titled _project.json_ in the following directory: ```apps\workspace-hxp```.  
-2. On line 353, add the text "node" after the "&&" in this command:  
-**Before**
-```
-"nx run workspace-hxp:buid:production && tools/..."
-```
-**After**
-```
-"nx run workspace-hxp:buid:production && node tools/..."
-```
-3. Save and close this file.
+**Which Method Should You Use?**
 
-**Package the UI**
-1. In Terminal, navigate to the root level of your local custom UI.
-2. Use the following command to build and package your UI: 
-```
-npm run pack-build workspace-hxp
-```
-3. Once this command is complete, a .zip file for this UI will be placed within the following directory: ```dist/```.
-   - **NOTE:** The maximum UI file size allowed to be uploaded is 10MB, so if your .zip file exceeds this then you'll receive an error on the next step. The likely issue causing the file size to be too large might be that the images you used for your HTML page are too large. If this is the case, use an application that has a save-for-web feature (like Photoshop) or try and reduce the file size of the image(s). 
-4. In Automate, go into **Studio Modelling** and open the process that you created this Custom UI from. On the left hand panel, toggle down the **UI** header and select your custom UI to open it's configuration. Use the blue **Upload** button to upload the .zip archive created in Step 3, confirming replacement when prompted to do so. (Use the following screenshot as a guide):
-![alt text](images/upload-ui.jpeg "Upload Custom UI.")
-5. Save the process, release, then navigate to **Studio Admin** and Upgrade the project. Test all is working by launching the custom UI name instead of the Workspace UI when Upgrade is complete.
+When creating a new plugin page, using the Nx generator can reduce repetitive setup, helps maintain the expected project structure and configuration, and lowers the chance of missing a required step.
 
---- 
+Manual creation is highly valuable, particularly when working with smaller components or modifying an existing application. It is also useful for understanding what the generator is doing behind the scenes.
+
+**Key takeaway:** The generator provides speed and consistency, while manual creation provides control and a deeper understanding of the component structure. Knowing both approaches allows you to choose the method that best fits what you're building.
+
+---  
 
 
 
