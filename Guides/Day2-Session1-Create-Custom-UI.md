@@ -384,6 +384,8 @@ To:
 ```
 ./#/start-process-cloud?process=claim-process
 ```
+> [!NOTE]
+> We're updating our process url to exclude `http://localhost:4200`, since when this app runs in the cloud it will not port through `localhost:4200`.
 
 ---  
 
