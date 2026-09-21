@@ -405,10 +405,13 @@ Next, we'll cover the process on how to create a component manually and register
 ```
 // we need the component libraries, since this should act as a component
 import { Component } from '@angular/core';
+
 // Translations libraries for future use
 import { TranslateModule } from '@ngx-translate/core';
+
 // import the router libraries so we can inject the Router (navigate to this page)
 import { Router } from '@angular/router';
+
 // Import the HxpWorkspaceHeaderComponent so we we visit this page we have a header
 import { HxpWorkspaceHeaderComponent } from '../shared-hxp/ui/src/lib/components/header/header.component';
 ```
