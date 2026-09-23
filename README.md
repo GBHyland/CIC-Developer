@@ -6,7 +6,7 @@
 
 ## Automate Day 2
 
-[Pre-configuration](/Custom-UI-Prereqs.md)
+[Pre-configuration](/Guides/Custom-UI-Prereqs.md)
 
 [Day 2 - Session 1: Create Custom UI](/Guides/Day2-Session1-Create-Custom-UI.md)
 
