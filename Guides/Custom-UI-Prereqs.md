@@ -66,4 +66,3 @@ npm --v
 ## Continue on to Day 1: Scripting in Automate
 [Day 1: Scripting in Automate](./Day1-Scripting-in-Automate.md)
 
-gi8rR.nQ*nB$lZ8$x)h!zoEvjQ*0ZJpB
