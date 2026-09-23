@@ -257,10 +257,11 @@ Verify that:
  
 4. Set the mapping on the script task to _Map all inputs/outputs variables_.
 5. Create a Human task stemming from the _custom-folder-error_ script titled: ```folder-error-notify```
-6. Create a form with the same name, ```folder-error-notify``` and attach it to the human task.
-7. Open the form and add a **Display Text** Field with id: ```errorMessage```.
-8. Go back to process and select the Human task. Assign the _Display Text_ the process variable: ```customErrorMessage```.
-9. Add an **End Event** after the Human task.
+6. Configure the Human Task **Assignment** configuration to be assigned to the user you are logged in as using the _Identity_ tab. 
+7. Create a form with the same name, ```folder-error-notify``` and attach it to the human task.
+8. Open the form and add a **Display Text** Field with id: ```errorMessage```.
+9. Go back to process and select the Human task. Assign the _Display Text_ the process variable: ```customErrorMessage```.
+10. Add an **End Event** after the Human task.
 
 ---  
 
