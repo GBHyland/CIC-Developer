@@ -2,18 +2,6 @@
 **Summary:** 
 Now that you have a local developed custom UI, you'll need to build it into a package and upload it to your Custom-UI configuration within your process in Automate in order for your intended audience to see it.
 
-**Update the Pack-Build Command**
-1. Open the file titled _project.json_ in the following directory: ```apps\workspace-hxp```.  
-2. On line 353, add the text "node" after the "&&" in this command:  
-**Before**
-```
-"nx run workspace-hxp:buid:production && tools/..."
-```
-**After**
-```
-"nx run workspace-hxp:buid:production && node tools/..."
-```
-3. Save and close this file.
 
 **Package the UI**
 1. In Terminal, navigate to the root level of your local custom UI.
