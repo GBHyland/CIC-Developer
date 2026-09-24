@@ -2348,7 +2348,21 @@ private identityUserService: IdentityUserService
     <div class="title">9 Second Insurance - Claims Portal</div>
   </div>
 
-  <button class="admin-btn" role="link" [routerLink]="landingPageURL">Admin Portal</button>
+  <div class="header-actions">
+  <button
+    class="admin-btn"
+    role="link"
+    routerLink="/portal">
+    Claims Portal
+  </button>
+  &nbsp;
+  <button
+    class="admin-btn"
+    role="link"
+    [routerLink]="landingPageURL">
+    Admin Portal
+  </button>
+</div>
 </header>
 
 </body>
