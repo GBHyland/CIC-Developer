@@ -1200,37 +1200,38 @@ This keeps the dashboard presentation predictable regardless of the order return
 
 # Part 11 — Display Claim Documents
 
-Return to:
+Open:
 
 ```text
 customDashComponent.html
 ```
 
-Inside each claim card, add another Angular `@for`:
+Replace the entire contents of the file with the following HTML:
 
 ```html
-@for (claim of claims; track claim.id) {
+<div class="dashboard">
 
-    <div class="claim-card">
+    <h1>{{ dashboardTitle }}</h1>
 
-        <h2>
-            {{ claim.name }}
-        </h2>
+    <h2>Total Claims: {{ claims.length }}</h2>
 
-        <p>
-            {{ claim.documents.length }} Documents
-        </p>
+    <div class="claims-grid">
 
-        @for (
-            document of claim.documents;
-            track document.id
-        ) {
+        @for (claim of claims; track claim.id) {
 
-            <div class="document-row">
+            <div class="claim-card">
 
-                <span>
-                    {{ document.name }}
-                </span>
+                <h2>{{ claim.name }}</h2>
+
+                <p>{{ claim.documents.length }} Documents</p>
+
+                @for (document of claim.documents; track document.id) {
+
+                    <div class="document-row">
+                        <span>{{ document.name }}</span>
+                    </div>
+
+                }
 
             </div>
 
@@ -1238,8 +1239,14 @@ Inside each claim card, add another Angular `@for`:
 
     </div>
 
-}
+</div>
 ```
+
+### What Changed and Why
+
+The existing dashboard title, total claim count, and outer `@for` loop remain in place. A second `@for` loop now runs **inside each claim card**, iterating over `claim.documents` and displaying each document's name in a `document-row`.
+
+This nested loop keeps each document associated with its parent claim, so the dashboard can show the files returned by the repository rather than just the document count.
 
 We now have **nested dynamic content**:
 
@@ -1268,55 +1275,66 @@ Verify:
 
 # Part 12 — Handle Claims Without Documents
 
-A claim might exist before supporting documentation has been added.
+Open:
 
-Inside the document section, add:
+```text
+customDashComponent.html
+```
+
+Replace the entire contents of the file with the following HTML:
 
 ```html
-@if (claim.documents.length === 0) {
+<div class="dashboard">
 
-    <div class="no-documents">
+    <h1>{{ dashboardTitle }}</h1>
 
-        No documents have been
-        added to this claim.
+    <h2>Total Claims: {{ claims.length }}</h2>
+
+    <div class="claims-grid">
+
+        @for (claim of claims; track claim.id) {
+
+            <div class="claim-card">
+
+                <h2>{{ claim.name }}</h2>
+
+                <p>{{ claim.documents.length }} Documents</p>
+
+                @if (claim.documents.length === 0) {
+
+                    <div class="no-documents">
+                        No documents have been added to this claim.
+                    </div>
+
+                }
+
+                @for (document of claim.documents; track document.id) {
+
+                    <div class="document-row">
+                        <div class="document-icon">📄</div>
+
+                        <div class="document-details">
+                            <div class="document-name">{{ document.name }}</div>
+                            <div class="document-type">{{ document.primaryType }}</div>
+                        </div>
+                    </div>
+
+                }
+
+            </div>
+
+        }
 
     </div>
 
-}
+</div>
 ```
 
-Then display documents with:
+### What Changed and Why
 
-```html
-@for (
-    document of claim.documents;
-    track document.id
-) {
+An `@if (claim.documents.length === 0)` condition now displays a friendly message when a claim has no supporting documents. The existing document loop remains, but each document row now includes a file icon, the document name, and its `primaryType`.
 
-    <div class="document-row">
-
-        <div class="document-icon">
-            📄
-        </div>
-
-        <div class="document-details">
-
-            <div class="document-name">
-                {{ document.name }}
-            </div>
-
-            <div class="document-type">
-                {{ document.primaryType }}
-            </div>
-
-        </div>
-
-    </div>
-
-}
-```
-
-This provides useful feedback instead of displaying an empty card.
+This makes empty claims understandable instead of leaving a blank area, while providing more useful information for claims that do have files.
 
 ---
 
@@ -1347,40 +1365,86 @@ this.isLoading = false;
 
 after the request completes.
 
-Use those values in the template:
+Open:
+
+```text
+customDashComponent.html
+```
+
+Replace the entire contents of the file with the following HTML:
 
 ```html
-@if (isLoading) {
+<div class="dashboard">
 
-    <div class="message-card">
+    <h1>{{ dashboardTitle }}</h1>
 
-        <h2>Loading Claims</h2>
+    @if (isLoading) {
 
-        <p>
-            Retrieving claim information from the
-            Content Repository...
-        </p>
+        <div class="message-card">
+            <h2>Loading Claims</h2>
+            <p>
+                Retrieving claim information from the
+                Content Repository...
+            </p>
+        </div>
 
-    </div>
+    } @else if (loadError) {
 
-} @else if (loadError) {
+        <div class="message-card error-card">
+            <h2>Unable to Load Claims</h2>
+            <p>{{ loadError }}</p>
+        </div>
 
-    <div class="message-card error-card">
+    } @else {
 
-        <h2>Unable to Load Claims</h2>
+        <h2>Total Claims: {{ claims.length }}</h2>
 
-        <p>
-            {{ loadError }}
-        </p>
+        <div class="claims-grid">
 
-    </div>
+            @for (claim of claims; track claim.id) {
 
-} @else {
+                <div class="claim-card">
 
-    <!-- Claims dashboard -->
+                    <h2>{{ claim.name }}</h2>
+                    <p>{{ claim.documents.length }} Documents</p>
 
-}
+                    @if (claim.documents.length === 0) {
+
+                        <div class="no-documents">
+                            No documents have been added to this claim.
+                        </div>
+
+                    }
+
+                    @for (document of claim.documents; track document.id) {
+
+                        <div class="document-row">
+                            <div class="document-icon">📄</div>
+
+                            <div class="document-details">
+                                <div class="document-name">{{ document.name }}</div>
+                                <div class="document-type">{{ document.primaryType }}</div>
+                            </div>
+                        </div>
+
+                    }
+
+                </div>
+
+            }
+
+        </div>
+
+    }
+
+</div>
 ```
+
+### What Changed and Why
+
+The dashboard now uses `@if`, `@else if`, and `@else` to choose what to display based on component state. While `isLoading` is true, the user sees a loading message. If the repository request fails, `loadError` displays an error message. Otherwise, the existing total claim count and claim/document cards appear.
+
+Keeping these states mutually exclusive prevents the dashboard from appearing empty or incomplete while data is loading, and gives users a clear explanation if the request fails.
 
 This creates three possible application states:
 
