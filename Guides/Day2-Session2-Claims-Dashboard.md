@@ -293,12 +293,14 @@ export class customDashComponent implements OnInit {
 }
 ```
 
-| The component uses three separate files: |
-| --- | -- |
-| customDashComponent.ts | Application logic |
-| customDashComponent.html | User interface |
-| customDashComponent.scss | Presentation and styling |
-| This separation makes the component easier to maintain as it grows. |
+
+| The component uses three separate files: | |
+| --- | --- |
+| `customDashComponent.ts` | Application logic |
+| `customDashComponent.html` | User interface |
+| `customDashComponent.scss` | Presentation and styling |
+| **Note:** This separation makes the component easier to maintain as it grows. | |
+
 
 ---
 
