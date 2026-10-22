@@ -345,13 +345,10 @@ ngOnInit(): void {
 }
 ```
 
-When Angular initializes the dashboard component, it will call:
-
-```typescript
-loadClaims()
-```
-
-We will create that method next.
+| When Angular initializes the dashboard component, it will call: |
+| --- |
+| loadClaims() |
+| We will create that method next. |
 
 ---
 
@@ -359,16 +356,9 @@ We will create that method next.
 
 Now that the component has access to the repository's `QueryApi`, we can create a method that retrieves the claim folders.
 
-Each folder directly inside:
-
-```text
-/uidev_claims
-```
-
-represents one insurance claim.
+Each folder directly inside `/uidev_claims` represents one insurance claim.
 
 Our method will:
-
 1. Prepare the component for loading data.
 2. Attempt to query the repository.
 3. Process the results if the query succeeds.
@@ -379,11 +369,7 @@ Our method will:
 
 ## Create the `loadClaims()` Method
 
-Open:
-
-```text
-libs/dashboard/customDashComponent.ts
-```
+Open: `libs/dashboard/customDashComponent.ts`
 
 Inside the `customDashComponent` class, below `ngOnInit()`, add:
 
@@ -395,23 +381,8 @@ async loadClaims(): Promise<void> {
 
 }
 ```
-
-Your component should now contain:
-
-```typescript
-ngOnInit(): void {
-    this.loadClaims();
-}
-
-async loadClaims(): Promise<void> {
-
-    this.isLoading = true;
-    this.loadError = '';
-
-}
-```
-
-### What does `async` mean?
+<details>
+<summary><strong>What does `async` mean?</strong></summary>
 
 Retrieving information from the Content Repository takes time.
 
@@ -430,6 +401,8 @@ await
 ```
 
 to wait for that response.
+</details>
+
 
 ---
 
@@ -469,7 +442,8 @@ async loadClaims(): Promise<void> {
 }
 ```
 
-### Understanding `try`, `catch`, and `finally`
+<details>
+<summary><strong>Understanding `try`, `catch`, and `finally`</strong></summary>
 
 The `try` block contains the code we want the application to attempt:
 
@@ -526,6 +500,8 @@ Stop Loading
 > **Automate Connection**
 >
 > This should look familiar if you have used Try/Catch logic when scripting in an Automate process. The same general idea applies here: attempt an operation and provide controlled behavior when that operation fails.
+</details>
+
 
 ---
 
