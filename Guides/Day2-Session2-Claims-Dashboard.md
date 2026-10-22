@@ -194,11 +194,7 @@ This separates **retrieving the data** from **displaying the data**.
 
 # Part 2 — Create the Claim Data Models
 
-Open:
-
-```text
-libs/dashboard/customDashComponent.ts
-```
+Open: `libs/dashboard/customDashComponent.ts`
 
 Begin with the Angular imports:
 
@@ -221,11 +217,6 @@ Finally, import the Angular injection token used to access the configured Query 
 ```typescript
 import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
 ```
-
-
-| Your imports should now look like the following. |
-| --- |
-| import { Component, inject, OnInit } from '@angular/core';<br />import {<br />    Query,<br />    QueryApi,<br />    QueryResult<br />} from '@hylandsoftware/hxcs-js-client';<br />import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api'; |
 
 
 ---
