@@ -264,13 +264,11 @@ interface Claim {
 }
 ```
 
-Notice that a claim contains:
+| Notice that a claim contains: |
+| --- |
+| documents: ClaimDocument[]; |
+| This allows each claim to contain its own collection of supporting documents. |
 
-```typescript
-documents: ClaimDocument[];
-```
-
-This allows each claim to contain its own collection of supporting documents.
 
 ### Checkpoint
 
@@ -295,10 +293,9 @@ export class customDashComponent implements OnInit {
 }
 ```
 
-The component uses three separate files:
-
-```text
-customDashComponent.ts
+| The component uses three separate files: |
+| -- |
+| customDashComponent.ts
         │
         ├── Application logic
         │
@@ -308,10 +305,9 @@ customDashComponent.html
         │
 customDashComponent.scss
         │
-        └── Presentation and styling
-```
+        └── Presentation and styling |
 
-This separation makes the component easier to maintain as it grows.
+| This separation makes the component easier to maintain as it grows. |
 
 ---
 
