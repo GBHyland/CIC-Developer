@@ -294,7 +294,7 @@ export class customDashComponent implements OnInit {
 ```
 
 | The component uses three separate files: |
-| -- |
+| --- |
 | customDashComponent.ts
         │
         ├── Application logic
