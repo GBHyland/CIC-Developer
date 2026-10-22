@@ -141,12 +141,13 @@ npm start workspace-hxp
 Before writing code, consider how the repository content maps to the application.
 
 We have a repository structure similar to this:
-- /uidev_claims
-  - /CLM-10001
+- /uidev_claims (parent claim folder)
+  - /CLM-10001 (generated claim folder for each claim)
     - ClaimForm.pdf
     - DamagePhoto.jpg
 
 This can be represented in TypeScript as:
+```text
 Claim
  ├── id
  ├── name
@@ -160,6 +161,7 @@ Claim
         ├── primaryType
         ├── created
         └── modified
+```
 
 The dashboard will therefore perform two levels of repository queries:
 1. Query `/uidev_claims` : Finds `Claim Folders`
