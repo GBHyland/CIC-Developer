@@ -295,9 +295,9 @@ export class customDashComponent implements OnInit {
 
 | The component uses three separate files: |
 | --- |
-| customDashComponent.ts
-        │
-        ├── Application logic
+| customDashComponent.ts <br />
+        │ <br />
+        ├── Application logic <br />
         │
 customDashComponent.html
         │
@@ -306,7 +306,6 @@ customDashComponent.html
 customDashComponent.scss
         │
         └── Presentation and styling |
-
 | This separation makes the component easier to maintain as it grows. |
 
 ---
