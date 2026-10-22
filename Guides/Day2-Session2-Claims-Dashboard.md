@@ -140,18 +140,13 @@ npm start workspace-hxp
 
 Before writing code, consider how the repository content maps to the application.
 
-A repository structure such as:
+We have a repository structure similar to this:
+- /uidev_claims
+  - /CLM-10001
+    - ClaimForm.pdf
+    - DamagePhoto.jpg
 
-```text
-/uidev_claims
-    /CLM-10001
-        ClaimForm.pdf
-        DamagePhoto.jpg
-```
-
-can be represented in TypeScript as:
-
-```text
+This can be represented in TypeScript as:
 Claim
  ├── id
  ├── name
@@ -165,28 +160,11 @@ Claim
         ├── primaryType
         ├── created
         └── modified
-```
 
 The dashboard will therefore perform two levels of repository queries:
-
-```text
-Query /uidev_claims
-        │
-        ▼
-Find Claim Folders
-        │
-        ▼
-For Each Claim
-        │
-        ▼
-Query Claim Folder
-        │
-        ▼
-Find Documents
-        │
-        ▼
-Build Dashboard
-```
+1. Query `/uidev_claims` : Finds `Claim Folders`
+   - For Each Claim, Query `Claim Folders` : Finds `Documents`
+2. Build Dashboard
 
 This separates **retrieving the data** from **displaying the data**.
 
