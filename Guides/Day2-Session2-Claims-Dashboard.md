@@ -222,15 +222,11 @@ Finally, import the Angular injection token used to access the configured Query 
 import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
 ```
 
+
 | Your imports should now look like the following. |
 | --- |
-|import { Component, inject, OnInit } from '@angular/core'; |
-| import { |
-|     Query, |
-|     QueryApi, |
-|     QueryResult |
-| } from '@hylandsoftware/hxcs-js-client'; |
-| import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api'; |
+| <pre><code>import { Component, inject, OnInit } from '@angular/core';<br>import {<br>    Query,<br>    QueryApi,<br>    QueryResult<br>} from '@hylandsoftware/hxcs-js-client';<br>import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';</code></pre> |
+
 
 
 > [!NOTE]
