@@ -225,7 +225,7 @@ import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
 
 | Your imports should now look like the following. |
 | --- |
-| <pre><code>import { Component, inject, OnInit } from '@angular/core';\nimport {\n    Query,\n    QueryApi,\n    QueryResult\n} from '@hylandsoftware/hxcs-js-client';\nimport { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';</code></pre> |
+| import { Component, inject, OnInit } from '@angular/core';\nimport {<br />    Query,<br />    QueryApi,<br />    QueryResult<br />} from '@hylandsoftware/hxcs-js-client';<br />import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api'; |
 
 
 
