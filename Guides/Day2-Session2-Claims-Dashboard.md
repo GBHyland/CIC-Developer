@@ -223,22 +223,21 @@ import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
 ```
 
 
-<details>
-<summary><strong>View completed imports (reference only)</strong></summary>
+> [!NOTE]
+> **Verify your imports**
+>
+> Your imports should now look like the following. This is for reference only; no additional code needs to be copied.
+>
+> ```typescript
+> import { Component, inject, OnInit } from '@angular/core';
+> import {
+>     Query,
+>     QueryApi,
+>     QueryResult
+> } from '@hylandsoftware/hxcs-js-client';
+> import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
+> ```
 
-Your imports should now look like this. This is for verification only.
-
-```typescript
-import { Component, inject, OnInit } from '@angular/core';
-import {
-    Query,
-    QueryApi,
-    QueryResult
-} from '@hylandsoftware/hxcs-js-client';
-import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
-```
-
-</details>
 
 
 ---
