@@ -509,13 +509,7 @@ Stop Loading
 
 Now we have a place to perform our repository operation.
 
-Inside the `try` block, replace:
-
-```typescript
-// We will query the repository here.
-```
-
-with:
+Inside the `try` block, replace: `// We will query the repository here.` with:
 
 ```typescript
 const claimQuery: Query = {
@@ -529,120 +523,31 @@ const claimQuery: Query = {
 };
 ```
 
-Your `try` block should now look like:
-
-```typescript
-try {
-
-    const claimQuery: Query = {
-        query: `
-            SELECT *
-            FROM SysFolder
-            WHERE sys_parentPath = '/uidev_claims'
-        `,
-        limit: 1000,
-        offset: 0
-    };
-
-}
-```
 
 ---
 
-## Understanding the Query Object
+<details>
+<summary><strong>Understanding the Query Object</strong></summary>
 
-We created a variable named:
-
-```typescript
-claimQuery
-```
-
-and defined it as a:
-
-```typescript
-Query
-```
+We created a variable named: `claimQuery` and defined it as a: `Query`.
 
 The `Query` type comes from the HxP Content Repository client that we imported earlier.
 
-Our object contains three properties:
+| Our object contains three properties: | |
+| --- | -- |
+| `query: "...",` | Defines the search criteria used to retrieve matching documents from the repository |
+| `limit: 1000` | Specifies the maximum number of results to return. Here, up to 1,000 documents |
+| `offset` | Specifies how many matching results to skip before returning documents |
 
-```typescript
-const claimQuery: Query = {
-    query: `...`,
-    limit: 1000,
-    offset: 0
-};
-```
 
 ### `query`
 
-The `query` property contains the HXQL statement that determines what repository content we want to retrieve.
-
-```sql
-SELECT *
-FROM SysFolder
-WHERE sys_parentPath = '/uidev_claims'
-```
-
-Let's break that down.
-
-### `SELECT *`
-
-```sql
-SELECT *
-```
-
-requests the available properties for matching repository objects.
-
-### `FROM SysFolder`
-
-```sql
-FROM SysFolder
-```
-
-limits the results to folders.
-
-This is important because each folder beneath `uidev_claims` represents a claim.
-
-### `WHERE sys_parentPath = '/uidev_claims'`
-
-```sql
-WHERE sys_parentPath = '/uidev_claims'
-```
-
-limits the results to folders whose immediate parent is:
-
-```text
-/uidev_claims
-```
-
-For example, given:
-
-```text
-/uidev_claims
-    /CLM-10001
-    /CLM-10002
-    /CLM-10003
-```
-
-the query returns those three claim folders.
-
-### `limit`
-
-```typescript
-limit: 1000
-```
-
-specifies the maximum number of results requested.
-
-### `offset`
-
-```typescript
-offset: 0
-```
-
-instructs the query to begin with the first available result.
+| The `query` property contains: | Let's break that down. |
+| --- | -- |
+| `SELECT *` | Requests the available properties for matching repository objects |
+| `FROM SysFolder` | Limits the results to folders. |
+| `WHERE sys_parentPath = "/uidev_claims"` | Limits the results to folders whose immediate parent is `uidev_claims` |
+</details>
 
 ---
 
@@ -663,20 +568,6 @@ The `await` keyword tells the method:
 
 > Wait for the Content Repository to respond before continuing.
 
-Our code now performs the following:
-
-```text
-claimQuery
-     │
-     ▼
-QueryApi
-     │
-     ▼
-HxP Content Repository
-     │
-     ▼
-Repository Response
-```
 
 ---
 
@@ -726,35 +617,6 @@ this.claims = claimFolders.map((folder: any) => ({
 }));
 ```
 
-Your `try` block should now contain:
-
-```typescript
-try {
-
-    const claimQuery: Query = {
-        query: `
-            SELECT *
-            FROM SysFolder
-            WHERE sys_parentPath = '/uidev_claims'
-        `,
-        limit: 1000,
-        offset: 0
-    };
-
-    const response =
-        await this.queryApi.getDocumentsByQuery(claimQuery);
-
-    const result: QueryResult = response.data;
-
-    const claimFolders = result.documents ?? [];
-
-    console.log(
-        `Found ${claimFolders.length} claim folders.`,
-        claimFolders
-    );
-
-}
-```
 
 ---
 
@@ -764,36 +626,10 @@ Save the component and reload the dashboard.
 
 Open your browser's developer tools and select the **Console**.
 
-You should see a message similar to:
-
-```text
-Found 7 claim folders.
-```
+You should see a message similar to: `Found 7 claim folders.`
 
 Your number may be different depending on the number of claim folders currently stored in the repository.
 
-Expand the returned array in the console.
-
-Each claim folder should contain repository properties such as:
-
-```text
-sys_id
-sys_name
-sys_parentPath
-sys_path
-sys_primaryType
-sys_created
-sys_modified
-```
-
-For example:
-
-```text
-sys_name: "CLM-10001"
-sys_parentPath: "/uidev_claims"
-sys_path: "/uidev_claims/CLM-10001"
-sys_primaryType: "SysFolder"
-```
 
 ### Checkpoint
 
@@ -813,11 +649,7 @@ If those checks pass, your Angular component is now successfully retrieving live
 
 Now connect the repository data to the HTML.
 
-Open:
-
-```text
-libs/dashboard/customDashComponent.html
-```
+Open: `libs/dashboard/customDashComponent.html`
 
 Add:
 
@@ -837,13 +669,7 @@ Add:
 
 Notice that no claim count is hard-coded.
 
-Angular evaluates:
-
-```html
-{{ claims.length }}
-```
-
-using the array populated by the repository query.
+Angular evaluates: `{{ claims.length }}` using the array populated by the repository query.
 
 If another claim folder is created, the number changes the next time the dashboard retrieves repository data.
 
@@ -851,11 +677,8 @@ If another claim folder is created, the number changes the next time the dashboa
 
 Reload the dashboard.
 
-Verify that **Total Claims** matches the number of folders stored directly inside:
+Verify that **Total Claims** matches the number of folders stored directly inside: `/uidev_claims`.
 
-```text
-/uidev_claims
-```
 
 ---
 
@@ -895,13 +718,7 @@ Replace the current HTML with:
 </div>
 ```
 
-The Angular control flow:
-
-```html
-@for (claim of claims; track claim.id)
-```
-
-creates one block of HTML for every object in the `claims` array.
+The Angular control flow: `@for (claim of claims; track claim.id)` creates one block of HTML for every object in the `claims` array.
 
 The repository now determines how many claim cards appear.
 
@@ -911,11 +728,7 @@ Reload the dashboard.
 
 You should see one card for every claim folder.
 
-At this stage every card should report:
-
-```text
-0 Documents
-```
+At this stage every card should report: `0 Documents`.
 
 That's expected.
 
@@ -925,13 +738,9 @@ We have discovered the claims, but we have not queried the files inside them yet
 
 # Part 9 — Retrieve Documents for a Claim
 
-Return to:
+Return to: `customDashComponent.ts`.
 
-```text
-customDashComponent.ts
-```
-
-Create a new method below `loadClaims()`:
+Create this new method below `loadClaims()`:
 
 ```typescript
 private async loadClaimDocuments(
@@ -943,11 +752,8 @@ private async loadClaimDocuments(
 
 This method receives the path of a claim.
 
-For example:
+For example: `/uidev_claims/CLM-10001`.
 
-```text
-/uidev_claims/CLM-10001
-```
 
 ---
 
@@ -967,22 +773,16 @@ const documentQuery: Query = {
 };
 ```
 
-Unlike the previous query, this query requests:
+Unlike the previous query, this query requests: `FROM SysContent` because we want the files stored inside the claim folder.
 
-```sql
-FROM SysContent
-```
-
-because we want the files stored inside the claim folder.
-
-Execute the query:
+Execute the query (add this):
 
 ```typescript
 const response =
     await this.queryApi.getDocumentsByQuery(documentQuery);
 ```
 
-Retrieve the results:
+Retrieve the results (add this right after):
 
 ```typescript
 const result: QueryResult = response.data;
@@ -994,18 +794,17 @@ const documents = result.documents ?? [];
 
 ## Transform Repository Documents
 
-The repository returns objects containing system properties such as:
+| The repository returns objects containing system properties such as: |
+| --- |
+| sys_id |
+| sys_name |
+| sys_path |
+| sys_primaryType |
+| sys_created |
+| sys_modified |
 
-```text
-sys_id
-sys_name
-sys_path
-sys_primaryType
-sys_created
-sys_modified
-```
 
-Transform those values into our `ClaimDocument` interface:
+Transform those values into our `ClaimDocument` interface (add this):
 
 ```typescript
 return documents.map((document: any) => {
@@ -1021,8 +820,8 @@ return documents.map((document: any) => {
 
 });
 ```
-
-The completed method should be:
+<details>
+<summary><strong>Click here to see what the completed method should look like:</strong></summary>
 
 ```typescript
 private async loadClaimDocuments(
@@ -1060,26 +859,23 @@ private async loadClaimDocuments(
     });
 }
 ```
+</details>
 
 ---
 
 # Part 10 — Load Documents for Every Claim
 
-We now have two capabilities:
-
-```text
-loadClaims()
-    → Finds claims
-
-loadClaimDocuments()
-    → Finds documents inside one claim
-```
+| We now have two capabilities: | |
+| --- | --- |
+| `loadClaims()` | → Finds claims |
+| `loadClaimDocuments()` | → Finds documents inside one claim |
+    
 
 Next, connect them.
 
 Return to `loadClaims()`.
 
-Find the temporary code:
+Find the temporary code (**do no use this code, find it and replace**):
 
 ```typescript
 this.claims = claimFolders.map((folder: any) => ({
@@ -1122,24 +918,6 @@ this.claims = await Promise.all(
 
 The resulting `claims` array now contains both levels of information:
 
-```text
-claims
-│
-├── Claim
-│   ├── name
-│   ├── path
-│   └── documents
-│       ├── Document
-│       ├── Document
-│       └── Document
-│
-├── Claim
-│   ├── name
-│   └── documents
-│       └── Document
-│
-└── ...
-```
 
 ---
 
@@ -1159,11 +937,7 @@ This keeps the dashboard presentation predictable regardless of the order return
 
 # Part 11 — Display Claim Documents
 
-Open:
-
-```text
-customDashComponent.html
-```
+Open: `customDashComponent.html`
 
 Replace the entire contents of the file with the following HTML:
 
@@ -1207,13 +981,7 @@ The existing dashboard title, total claim count, and outer `@for` loop remain in
 
 This nested loop keeps each document associated with its parent claim, so the dashboard can show the files returned by the repository rather than just the document count.
 
-We now have **nested dynamic content**:
-
-```text
-@for each Claim
-        │
-        └── @for each Document
-```
+We now have **nested dynamic content**: `@for each Claim -> @for each Document`.
 
 The first loop generates claim cards.
 
@@ -1234,11 +1002,7 @@ Verify:
 
 # Part 12 — Handle Claims Without Documents
 
-Open:
-
-```text
-customDashComponent.html
-```
+Open: `customDashComponent.html`
 
 Replace the entire contents of the file with the following HTML:
 
@@ -1288,47 +1052,26 @@ Replace the entire contents of the file with the following HTML:
 
 </div>
 ```
-
-### What Changed and Why
+<details>
+<summary><strong>What Changed and Why</strong></summary>
 
 An `@if (claim.documents.length === 0)` condition now displays a friendly message when a claim has no supporting documents. The existing document loop remains, but each document row now includes a file icon, the document name, and its `primaryType`.
 
 This makes empty claims understandable instead of leaving a blank area, while providing more useful information for claims that do have files.
-
+</details>
 ---
 
 # Part 13 — Add Loading and Error States
 
 Repository data takes time to retrieve.
 
-The component already contains:
+The component already contains: `isLoading = true;` and `loadError = '';`.
 
-```typescript
-isLoading = true;
-loadError = '';
-```
+And `loadClaims()` sets: `this.isLoading = true;` before retrieving data.
 
-And `loadClaims()` sets:
+The `finally` block sets: `this.isLoading = false;` after the request completes.
 
-```typescript
-this.isLoading = true;
-```
-
-before retrieving data.
-
-The `finally` block sets:
-
-```typescript
-this.isLoading = false;
-```
-
-after the request completes.
-
-Open:
-
-```text
-customDashComponent.html
-```
+Open: `customDashComponent.html`
 
 Replace the entire contents of the file with the following HTML:
 
@@ -1398,8 +1141,8 @@ Replace the entire contents of the file with the following HTML:
 
 </div>
 ```
-
-### What Changed and Why
+<details>
+<summary><strong>What Changed and Why</strong></summary>
 
 The dashboard now uses `@if`, `@else if`, and `@else` to choose what to display based on component state. While `isLoading` is true, the user sees a loading message. If the repository request fails, `loadError` displays an error message. Otherwise, the existing total claim count and claim/document cards appear.
 
@@ -1414,12 +1157,12 @@ Loading
    │
    └── Failure → Display Error
 ```
-
+</details>
 ---
 
 # Part 14 — Complete the TypeScript Component
 
-Your completed `customDashComponent.ts` should now resemble:
+Your completed `customDashComponent.ts` should now resemble (**no need to copy this unless you need to replace your code with this finished, working version**):
 
 ```typescript
 import { Component, inject, OnInit } from '@angular/core';
@@ -1788,11 +1531,7 @@ Now replace the working test HTML with the finished dashboard structure:
 
 # Part 16 — Style the Dashboard
 
-Open:
-
-```text
-customDashComponent.scss
-```
+Open: `customDashComponent.scss`
 
 Add the following styles:
 
@@ -2101,11 +1840,7 @@ Add the following styles:
 
 Save all three files and allow the Angular development server to rebuild the application.
 
-Navigate to:
-
-```text
-http://localhost:4200/#/dashboard
-```
+Navigate to: `http://localhost:4200/#/dashboard`
 
 Verify the following:
 
@@ -2274,16 +2009,17 @@ This allows the dashboard UI to respond to repository data rather than requiring
 import { IdentityUserService } from '@alfresco/adf-process-services-cloud';
 import { RouterLink } from '@angular/router';
 ```
-4. In the `@Component` injection, add `RouterLink` to the _imports_ array and remove `HeaderComponent`.
-5. In the export class section, add the following variable declaration immediately before the constructor:
+4. Remove the `HeaderComponent` import.
+5. In the `@Component` injection, add `RouterLink` to the _imports_ array and remove `HeaderComponent`.
+6. In the export class section, add the following variable declaration immediately before the constructor:
 ```
 landingPageURL = 'portal';
 ```
-6. Inside the constructor parenthesis (), add the following parameter:
+7. Inside the constructor parenthesis (), add the following parameter:
 ```
 private identityUserService: IdentityUserService
 ```
-7. Next, add the following function **after** the `effect()` function:
+8. Next, add the following function **after** the `effect()` function:
 ```
 // load the page based on identity of user
         console.log("This is the user: "+this.identityUserService.getCurrentUserInfo().firstName+"  "+this.identityUserService.getCurrentUserInfo().lastName);
@@ -2294,8 +2030,8 @@ private identityUserService: IdentityUserService
                 this.landingPageURL = '/dashboard': this.landingPageURL = '/portal'
             })
 ```
-8. In the same directory, open the `header.component.html` file.
-9. Replace the entire contents of this file with the following html code:
+9. In the same directory, open the `header.component.html` file.
+10. Replace the entire contents of this file with the following html code:
 ```
 <!DOCTYPE html>
 <html lang="en">
