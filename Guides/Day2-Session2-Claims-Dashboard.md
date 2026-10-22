@@ -228,7 +228,7 @@ import { QUERY_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
 >
 > Your imports should now look like the following. This is for reference only; no additional code needs to be copied.
 >
-> ```typescript {.no-copy}
+> ```typescript {no-copy}
 > import { Component, inject, OnInit } from '@angular/core';
 > import {
 >     Query,
