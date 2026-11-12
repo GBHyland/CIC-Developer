@@ -489,7 +489,7 @@ const claimQuery: Query = {
         FROM SysFolder
         WHERE sys_parentPath = '/uidev_claims'
     `,
-    limit: 1000,
+    limit: 20,
     offset: 0
 };
 ```
@@ -507,7 +507,7 @@ The `Query` type comes from the HxP Content Repository client that we imported e
 | Our object contains three properties: | |
 | --- | -- |
 | `query: "...",` | Defines the search criteria used to retrieve matching documents from the repository |
-| `limit: 1000` | Specifies the maximum number of results to return. Here, up to 1,000 documents |
+| `limit: 20` | Specifies the maximum number of results to return. Here, up to 1,000 documents |
 | `offset` | Specifies how many matching results to skip before returning documents |
 
 
@@ -739,7 +739,7 @@ const documentQuery: Query = {
         FROM SysContent
         WHERE sys_parentPath = '${claimPath}'
     `,
-    limit: 1000,
+    limit: 20,
     offset: 0
 };
 ```
@@ -805,7 +805,7 @@ private async loadClaimDocuments(
             FROM SysContent
             WHERE sys_parentPath = '${claimPath}'
         `,
-        limit: 1000,
+        limit: 20,
         offset: 0
     };
 
@@ -1195,7 +1195,7 @@ export class customDashComponent implements OnInit {
                     FROM SysFolder
                     WHERE sys_parentPath = '/uidev_claims'
                 `,
-                limit: 1000,
+                limit: 20,
                 offset: 0
             };
 
@@ -1263,7 +1263,7 @@ export class customDashComponent implements OnInit {
                 FROM SysContent
                 WHERE sys_parentPath = '${claimPath}'
             `,
-            limit: 1000,
+            limit: 20,
             offset: 0
         };
 
