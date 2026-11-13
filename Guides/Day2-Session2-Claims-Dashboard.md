@@ -507,7 +507,7 @@ The `Query` type comes from the HxP Content Repository client that we imported e
 | Our object contains three properties: | |
 | --- | -- |
 | `query: "...",` | Defines the search criteria used to retrieve matching documents from the repository |
-| `limit: 20` | Specifies the maximum number of results to return. Here, up to 1,000 documents |
+| `limit: 20` | Specifies the maximum number of results to return. Here, up to 20 documents |
 | `offset` | Specifies how many matching results to skip before returning documents |
 
 
